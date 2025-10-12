@@ -51,7 +51,7 @@ body {
 
 /* Button styles - Spotify inspired */
 .btn-primary {
-  background-color: #1DB954;
+  background-color: #FFFFFF;
   color: #000000;
   font-weight: bold;
   padding: 0.75rem 2rem;
@@ -65,7 +65,7 @@ body {
 }
 
 .btn-primary:hover {
-  background-color: #1ed760;
+  background-color: #E0E0E0;
   transform: scale(1.04);
 }
 
@@ -90,8 +90,8 @@ body {
 }
 
 .btn-outline {
-  border: 2px solid #1DB954;
-  color: #1DB954;
+  border: 2px solid #FFFFFF;
+  color: #FFFFFF;
   background-color: transparent;
   font-weight: bold;
   padding: 0.5rem 1.5rem;
@@ -102,7 +102,7 @@ body {
 }
 
 .btn-outline:hover {
-  background-color: #1DB954;
+  background-color: #FFFFFF;
   color: #000000;
   transform: scale(1.04);
 }
@@ -120,7 +120,7 @@ body {
 }
 
 .input-field:focus {
-  border-color: #1DB954;
+  border-color: #FFFFFF;
   background-color: #181818;
 }
 
@@ -141,7 +141,7 @@ body {
 }
 
 .textarea-field:focus {
-  border-color: #1DB954;
+  border-color: #FFFFFF;
   background-color: #181818;
 }
 
@@ -194,5 +194,5 @@ body {
 }
 
 .spotify-hover:hover {
-  color: #1DB954;
+  color: #FFFFFF;
 }

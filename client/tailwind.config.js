@@ -7,14 +7,14 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        // Spotify-inspired dark theme colors
+        // Spotify-inspired dark theme colors with white accent
         'spotify-black': '#000000',
         'spotify-dark': '#121212',
         'spotify-gray': '#181818',
         'spotify-light-gray': '#282828',
         'spotify-lighter-gray': '#3E3E3E',
-        'spotify-green': '#1DB954',
-        'spotify-green-hover': '#1ed760',
+        'spotify-green': '#FFFFFF',
+        'spotify-green-hover': '#E0E0E0',
         'spotify-text': '#FFFFFF',
         'spotify-text-gray': '#B3B3B3',
         'spotify-text-subdued': '#6A6A6A',
@@ -22,7 +22,7 @@ module.exports = {
         'spotify-border': '#282828',
 
         // Legacy colors for backwards compatibility
-        primary: '#1DB954',
+        primary: '#FFFFFF',
         dark: '#121212',
         darker: '#000000',
         light: '#F7F9F9',
@@ -31,7 +31,7 @@ module.exports = {
         'hover-spotify': 'rgba(255, 255, 255, 0.1)',
       },
       backgroundImage: {
-        'gradient-spotify': 'linear-gradient(180deg, #1DB954 0%, #121212 100%)',
+        'gradient-spotify': 'linear-gradient(180deg, #FFFFFF 0%, #121212 100%)',
       },
     },
   },

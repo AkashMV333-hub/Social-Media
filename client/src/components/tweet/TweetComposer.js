@@ -107,7 +107,7 @@ const TweetComposer = ({ onTweetCreated }) => {
                 <button
                   type="submit"
                   disabled={loading || (!text.trim() && !image)}
-                  className="btn-primary disabled:opacity-50 transition-opacity duration-200"
+                  className="btn-primary bg-white disabled:opacity-50 transition-opacity duration-200"
                 >
                   {loading ? 'Posting...' : 'Tweet'}
                 </button>
