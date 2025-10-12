@@ -12,7 +12,7 @@ const Sidebar = () => {
     { path: '/', icon: FaHome, label: 'Home' },
     { path: '/explore', icon: FaCompass, label: 'Explore' },
     { path: '/notifications', icon: FaBell, label: 'Notifications' },
-    { path: '/messages', icon: FaEnvelope, label: 'Messages' },
+   // { path: '/messages', icon: FaEnvelope, label: 'Messages' },
     { path: `/profile/${user?.username}`, icon: FaUser, label: 'Profile' },
   ];
 
@@ -23,10 +23,10 @@ const Sidebar = () => {
           <Link
             key={item.path}
             to={item.path}
-            className={`flex items-center gap-4 px-4 py-3 rounded-full transition ${
+            className={`flex items-center gap-4 px-4 py-3 rounded-lg transition-colors duration-200 ${
               isActive(item.path)
-                ? 'bg-blue-50 text-primary font-bold'
-                : 'hover:bg-gray-100 text-gray-700'
+                ? 'bg-spotify-light-gray text-spotify-green font-bold'
+                : 'hover:bg-spotify-gray text-spotify-text-gray hover:text-spotify-text'
             }`}
           >
             <item.icon size={24} />

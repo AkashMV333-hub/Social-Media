@@ -52,17 +52,21 @@ const TweetComposer = ({ onTweetCreated }) => {
   };
 
   return (
-    <div className="border-b p-4">
+    <div className="border-b border-spotify-border p-4 bg-spotify-light-gray">
       <form onSubmit={handleSubmit}>
         <div className="flex gap-3">
           <img
             src={getImageUrl(user?.profilePicture)}
             alt={user?.name}
-            className="w-12 h-12 rounded-full"
+            className="w-12 h-12 rounded-full object-cover bg-spotify-gray"
+            onError={(e) => {
+              e.target.onerror = null;
+              e.target.src = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user?.name) + '&background=1DB954&color=fff&size=150';
+            }}
           />
           <div className="flex-1">
             <textarea
-              className="w-full border-none focus:outline-none resize-none text-lg"
+              className="w-full bg-transparent border-none focus:outline-none resize-none text-lg text-spotify-text placeholder-spotify-text-gray"
               placeholder="What's happening?"
               rows="3"
               value={text}
@@ -75,12 +79,12 @@ const TweetComposer = ({ onTweetCreated }) => {
                 <img
                   src={imagePreview}
                   alt="Preview"
-                  className="rounded-lg max-h-64 w-full object-cover"
+                  className="rounded-lg max-h-64 w-full object-cover border border-spotify-border"
                 />
                 <button
                   type="button"
                   onClick={removeImage}
-                  className="absolute top-2 right-2 bg-gray-800 bg-opacity-75 text-white rounded-full p-2 hover:bg-opacity-100"
+                  className="absolute top-2 right-2 bg-spotify-gray bg-opacity-90 text-spotify-text rounded-full p-2 hover:bg-opacity-100 transition-all duration-200"
                 >
                   <FaTimes />
                 </button>
@@ -88,7 +92,7 @@ const TweetComposer = ({ onTweetCreated }) => {
             )}
 
             <div className="flex items-center justify-between mt-3">
-              <label className="cursor-pointer text-primary hover:text-blue-600">
+              <label className="cursor-pointer text-spotify-green hover:text-spotify-green hover:opacity-80 transition-opacity duration-200">
                 <FaImage size={20} />
                 <input
                   type="file"
@@ -99,11 +103,11 @@ const TweetComposer = ({ onTweetCreated }) => {
               </label>
 
               <div className="flex items-center gap-3">
-                <span className="text-sm text-gray-500">{text.length}/280</span>
+                <span className="text-sm text-spotify-text-gray">{text.length}/280</span>
                 <button
                   type="submit"
                   disabled={loading || (!text.trim() && !image)}
-                  className="btn-primary disabled:opacity-50"
+                  className="btn-primary disabled:opacity-50 transition-opacity duration-200"
                 >
                   {loading ? 'Posting...' : 'Tweet'}
                 </button>

@@ -51,33 +51,33 @@ const Profile = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-spotify-black">
       <Navbar />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <div className="flex gap-4">
           <Sidebar />
 
           <main className="flex-1 max-w-2xl">
-            <div className="bg-white rounded-lg shadow">
+            <div className="bg-spotify-gray rounded-lg shadow-lg">
               <ProfileHeader user={user} onUpdate={fetchUserProfile} />
 
-              <div className="border-b">
+              <div className="border-b border-spotify-border">
                 <div className="flex">
                   <button
-                    className={`flex-1 py-4 font-semibold ${
+                    className={`flex-1 py-4 font-semibold transition-colors ${
                       activeTab === 'tweets'
-                        ? 'text-primary border-b-2 border-primary'
-                        : 'text-gray-600'
+                        ? 'text-spotify-green border-b-2 border-spotify-green'
+                        : 'text-spotify-text-gray hover:text-spotify-text'
                     }`}
                     onClick={() => setActiveTab('tweets')}
                   >
                     Tweets
                   </button>
                   <button
-                    className={`flex-1 py-4 font-semibold ${
+                    className={`flex-1 py-4 font-semibold transition-colors ${
                       activeTab === 'media'
-                        ? 'text-primary border-b-2 border-primary'
-                        : 'text-gray-600'
+                        ? 'text-spotify-green border-b-2 border-spotify-green'
+                        : 'text-spotify-text-gray hover:text-spotify-text'
                     }`}
                     onClick={() => setActiveTab('media')}
                   >
@@ -89,7 +89,7 @@ const Profile = () => {
               {loading ? (
                 <LoadingSpinner />
               ) : tweets.length === 0 ? (
-                <div className="p-8 text-center text-gray-500">
+                <div className="p-8 text-center text-spotify-text-subdued">
                   No tweets yet
                 </div>
               ) : (

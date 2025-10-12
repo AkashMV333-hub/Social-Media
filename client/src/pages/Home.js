@@ -37,31 +37,31 @@ const Home = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-spotify-black">
       <Navbar />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <div className="flex gap-4">
           <Sidebar />
 
           <main className="flex-1 max-w-2xl">
-            <div className="bg-white rounded-lg shadow">
-              <div className="border-b">
+            <div className="bg-spotify-gray rounded-lg shadow-lg">
+              <div className="border-b border-spotify-border">
                 <div className="flex">
                   <button
-                    className={`flex-1 py-4 font-semibold ${
+                    className={`flex-1 py-4 font-semibold transition-colors ${
                       activeTab === 'feed'
-                        ? 'text-primary border-b-2 border-primary'
-                        : 'text-gray-600'
+                        ? 'text-spotify-green border-b-2 border-spotify-green'
+                        : 'text-spotify-text-gray hover:text-spotify-text'
                     }`}
                     onClick={() => setActiveTab('feed')}
                   >
                     Home Feed
                   </button>
                   <button
-                    className={`flex-1 py-4 font-semibold ${
+                    className={`flex-1 py-4 font-semibold transition-colors ${
                       activeTab === 'latest'
-                        ? 'text-primary border-b-2 border-primary'
-                        : 'text-gray-600'
+                        ? 'text-spotify-green border-b-2 border-spotify-green'
+                        : 'text-spotify-text-gray hover:text-spotify-text'
                     }`}
                     onClick={() => setActiveTab('latest')}
                   >
@@ -75,7 +75,7 @@ const Home = () => {
               {loading ? (
                 <LoadingSpinner />
               ) : tweets.length === 0 ? (
-                <div className="p-8 text-center text-gray-500">
+                <div className="p-8 text-center text-spotify-text-subdued">
                   {activeTab === 'feed'
                     ? 'Follow users to see their tweets here'
                     : 'No tweets yet'}
@@ -93,9 +93,9 @@ const Home = () => {
           </main>
 
           <aside className="hidden lg:block w-80">
-            <div className="bg-white rounded-lg shadow p-4">
-              <h3 className="font-bold text-lg mb-2">Trending</h3>
-              <p className="text-gray-500 text-sm">Coming soon...</p>
+            <div className="bg-spotify-gray rounded-lg shadow-lg p-4">
+              <h3 className="font-bold text-lg mb-2 text-spotify-text">Trending</h3>
+              <p className="text-spotify-text-subdued text-sm">Coming soon...</p>
             </div>
           </aside>
         </div>

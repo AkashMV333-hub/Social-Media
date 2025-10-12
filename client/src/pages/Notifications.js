@@ -44,24 +44,24 @@ const Notifications = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-spotify-black">
       <Navbar />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <div className="flex gap-4">
           <Sidebar />
 
           <main className="flex-1 max-w-2xl">
-            <div className="bg-white rounded-lg shadow">
-              <div className="border-b p-4">
-                <h2 className="text-2xl font-bold">Notifications</h2>
+            <div className="bg-spotify-gray rounded-lg shadow-lg">
+              <div className="border-b border-spotify-border p-4">
+                <h2 className="text-2xl font-bold text-spotify-text">Notifications</h2>
               </div>
 
               {loading ? (
                 <div className="p-8 text-center">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-spotify-green mx-auto"></div>
                 </div>
               ) : notifications.length === 0 ? (
-                <div className="p-8 text-center text-gray-500">
+                <div className="p-8 text-center text-spotify-text-subdued">
                   No notifications yet
                 </div>
               ) : (
@@ -69,8 +69,8 @@ const Notifications = () => {
                   {notifications.map(notification => (
                     <div
                       key={notification._id}
-                      className={`p-4 border-b hover:bg-gray-50 ${
-                        !notification.read ? 'bg-blue-50' : ''
+                      className={`p-4 border-b border-spotify-border hover:bg-spotify-light-gray transition-colors ${
+                        !notification.read ? 'bg-spotify-dark' : ''
                       }`}
                     >
                       <div className="flex gap-3">
@@ -78,12 +78,12 @@ const Notifications = () => {
                         <div className="flex-1">
                           <Link
                             to={`/profile/${notification.sender.username}`}
-                            className="font-semibold hover:underline"
+                            className="font-semibold text-spotify-text hover:text-spotify-green transition-colors"
                           >
                             {notification.sender.name}
                           </Link>
-                          <p className="text-gray-700">{notification.message}</p>
-                          <p className="text-gray-500 text-sm mt-1">
+                          <p className="text-spotify-text-gray">{notification.message}</p>
+                          <p className="text-spotify-text-subdued text-sm mt-1">
                             {formatDistanceToNow(new Date(notification.createdAt), { addSuffix: true })}
                           </p>
                         </div>

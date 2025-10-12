@@ -39,7 +39,11 @@ const FollowButton = ({ userId }) => {
     <button
       onClick={handleToggleFollow}
       disabled={loading}
-      className={following ? 'btn-outline' : 'btn-primary'}
+      className={
+        following
+          ? 'border border-spotify-border text-spotify-text px-6 py-2 rounded-full font-semibold hover:border-red-500 hover:text-red-500 transition-all duration-200'
+          : 'bg-spotify-green text-spotify-gray px-6 py-2 rounded-full font-semibold hover:scale-105 transition-transform duration-200'
+      }
     >
       {loading ? '...' : following ? 'Unfollow' : 'Follow'}
     </button>

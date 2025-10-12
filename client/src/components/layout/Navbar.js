@@ -7,32 +7,36 @@ const Navbar = () => {
   const { user, logout } = useAuth();
 
   return (
-    <nav className="bg-white border-b sticky top-0 z-50">
+    <nav className="bg-spotify-black border-b border-spotify-border sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex items-center">
             <Link to="/" className="flex items-center">
-              <FaTwitter className="text-primary" size={32} />
+              <FaTwitter className="text-spotify-green" size={32} />
             </Link>
           </div>
 
           <div className="flex items-center gap-6">
-            <Link to="/notifications" className="text-gray-700 hover:text-primary">
+            <Link to="/notifications" className="text-spotify-text-gray hover:text-spotify-green transition-colors duration-200">
               <FaBell size={20} />
             </Link>
-            <Link to="/messages" className="text-gray-700 hover:text-primary">
+            <Link to="/messages" className="text-spotify-text-gray hover:text-spotify-green transition-colors duration-200">
               <FaEnvelope size={20} />
             </Link>
             <Link to={`/profile/${user?.username}`} className="flex items-center gap-2">
               <img
                 src={getImageUrl(user?.profilePicture)}
                 alt={user?.name}
-                className="w-8 h-8 rounded-full"
+                className="w-8 h-8 rounded-full object-cover bg-spotify-gray hover:opacity-80 transition-opacity duration-200"
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user?.name) + '&background=1DB954&color=fff&size=150';
+                }}
               />
             </Link>
             <button
               onClick={logout}
-              className="text-gray-700 hover:text-red-600 font-semibold"
+              className="text-spotify-text-gray hover:text-red-500 font-semibold transition-colors duration-200"
             >
               Logout
             </button>
