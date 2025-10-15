@@ -12,7 +12,7 @@ const Navbar = () => {
         <div className="flex justify-between h-16">
           <div className="flex items-center">
             <Link to="/" className="flex items-center">
-              <FaTwitter className="text-spotify-green" size={32} />
+              <p className='text-2xl font-bold'>SocialApp</p>
             </Link>
           </div>
 

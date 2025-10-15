@@ -34,7 +34,6 @@ const Login = () => {
     <div className="min-h-screen flex items-center justify-center bg-spotify-black py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div>
-          <FaTwitter className="mx-auto h-12 w-auto text-spotify-green" size={48} />
           <h2 className="mt-6 text-center text-3xl font-extrabold text-spotify-text">
             Log in to your account
           </h2>

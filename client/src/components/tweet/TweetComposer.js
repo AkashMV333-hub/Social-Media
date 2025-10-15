@@ -109,7 +109,7 @@ const TweetComposer = ({ onTweetCreated }) => {
                   disabled={loading || (!text.trim() && !image)}
                   className="btn-primary bg-white disabled:opacity-50 transition-opacity duration-200"
                 >
-                  {loading ? 'Posting...' : 'Tweet'}
+                  {loading ? 'Posting...' : 'Post'}
                 </button>
               </div>
             </div>
