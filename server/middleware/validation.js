@@ -59,8 +59,14 @@ const validateLogin = [
 const validateTweet = [
   body('text')
     .trim()
-    .notEmpty().withMessage('Tweet text is required')
-    .isLength({ max: 280 }).withMessage('Tweet cannot exceed 280 characters'),
+    .isLength({ max: 280 }).withMessage('Tweet cannot exceed 280 characters')
+    .custom((value, { req }) => {
+      // At least text or image must be provided
+      if (!value && !req.file) {
+        throw new Error('Tweet must contain either text or an image');
+      }
+      return true;
+    }),
   validate,
 ];
 

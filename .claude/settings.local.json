@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "Bash(dir)",
-      "Bash(taskkill:*)"
+      "Bash(taskkill:*)",
+      "Bash(dir:*)"
     ],
     "deny": [],
     "ask": []

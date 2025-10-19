@@ -7,12 +7,29 @@ import { FaHeart, FaRegHeart, FaComment, FaTrash } from 'react-icons/fa';
 import CommentList from './CommentList';
 import { getImageUrl } from '../../utils/imageUtils';
 
-const TweetCard = ({ tweet, onDelete }) => {
+const TweetCard = ({ tweet, onDelete, index = 0 }) => {
   const { user: currentUser } = useAuth();
   const [liked, setLiked] = useState(tweet.isLiked);
   const [likesCount, setLikesCount] = useState(tweet.likesCount);
   const [showComments, setShowComments] = useState(false);
   const [commentsCount, setCommentsCount] = useState(tweet.commentsCount);
+
+  // Background colors for text-only posts
+  const textPostColors = ['#BF937C', '#4F3A35', '#2F6755', '#98A69A','#AC7E6E', '#C9ADA7', '#82BAC4', '#725444', '#82BAC4'];
+  const backgroundColor = !tweet.image ? textPostColors[index % textPostColors.length] : 'transparent';
+
+  // Dynamic font size based on text length
+  const getDynamicFontSize = (text) => {
+    const length = text.length;
+    if (length <= 10) return 'text-9xl';
+    if (length <= 20) return 'text-7xl';
+    if (length <= 50) return 'text-5xl';
+    if (length <= 100) return 'text-4xl';
+    if (length <= 150) return 'text-3xl';
+    if (length <= 200) return 'text-2xl';
+    if (length <= 300) return 'text-xl';
+    return 'text-lg';
+  };
 
   const handleLike = async () => {
     try {
@@ -83,14 +100,28 @@ const TweetCard = ({ tweet, onDelete }) => {
             )}
           </div>
 
-          <p className="mt-2 text-spotify-text">{tweet.text}</p>
-
-          {tweet.image && (
-            <img
-              src={getImageUrl(tweet.image)}
-              alt="Tweet"
-              className="mt-3 rounded-lg max-h-96 w-full object-cover border border-spotify-border"
-            />
+          {!tweet.image ? (
+            <div
+              className="mt-3 rounded-lg w-full flex items-center justify-center p-6"
+              style={{
+                backgroundColor,
+                minHeight: '24rem',
+                maxHeight: '24rem'
+              }}
+            >
+              <p className={`text-white font-bold ${getDynamicFontSize(tweet.text)} leading-snug text-center break-words w-full`}>
+                {tweet.text}
+              </p>
+            </div>
+          ) : (
+            <>
+              <p className="mt-2 text-spotify-text">{tweet.text}</p>
+              <img
+                src={getImageUrl(tweet.image)}
+                alt="Tweet"
+                className="mt-3 rounded-lg max-h-96 w-full object-cover border border-spotify-border"
+              />
+            </>
           )}
 
           <div className="flex items-center gap-6 mt-3 text-spotify-text-gray">

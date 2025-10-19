@@ -12,9 +12,10 @@ const storage = multer.diskStorage({
     cb(null, 'uploads/'); // Temporary storage location
   },
   filename: (req, file, cb) => {
-    // Generate unique filename: timestamp-randomstring-originalname
+    // Generate unique filename with extension only (avoid special characters)
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, uniqueSuffix + '-' + file.originalname);
+    const ext = path.extname(file.originalname).toLowerCase();
+    cb(null, uniqueSuffix + ext);
   },
 });
 

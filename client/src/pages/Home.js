@@ -81,10 +81,11 @@ const Home = () => {
                     : 'No tweets yet'}
                 </div>
               ) : (
-                tweets.map(tweet => (
+                tweets.map((tweet, index) => (
                   <TweetCard
                     key={tweet._id}
                     tweet={tweet}
+                    index={index}
                     onDelete={handleTweetDeleted}
                   />
                 ))

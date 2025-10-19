@@ -93,8 +93,8 @@ const Profile = () => {
                   No tweets yet
                 </div>
               ) : (
-                tweets.map(tweet => (
-                  <TweetCard key={tweet._id} tweet={tweet} />
+                tweets.map((tweet, index) => (
+                  <TweetCard key={tweet._id} tweet={tweet} index={index} />
                 ))
               )}
             </div>

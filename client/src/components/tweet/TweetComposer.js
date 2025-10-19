@@ -26,7 +26,10 @@ const TweetComposer = ({ onTweetCreated }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!text.trim() && !image) return;
+    if (!text.trim() && !image) {
+      alert('Please add text or an image to your post');
+      return;
+    }
 
     try {
       setLoading(true);

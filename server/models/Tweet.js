@@ -14,7 +14,8 @@ const tweetSchema = new mongoose.Schema(
     },
     text: {
       type: String,
-      required: [true, 'Tweet text is required'],
+      required: false,
+      default: '',
       maxlength: [280, 'Tweet cannot exceed 280 characters'],
       trim: true,
     },
