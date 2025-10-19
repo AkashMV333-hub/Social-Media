@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const multer = require('multer');
 const rateLimit = require('express-rate-limit');
 const {
   register,
@@ -20,9 +21,12 @@ const authLimiter = rateLimit({
   message: 'Too many authentication attempts, please try again later',
 });
 
+
+const upload = multer({ dest: 'uploads/' }); // store uploaded file temporarily
+
 // Public routes
-router.post('/register', validateRegister, register);
-router.post('/login', authLimiter, validateLogin, login);
+router.post('/register', upload.single('file'), validateRegister, register);
+router.post('/login', login);
 
 // Protected routes
 router.get('/me', protect, getMe);

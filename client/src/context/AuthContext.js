@@ -51,62 +51,83 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Login function
-  const login = async (email, password) => {
-    try {
-      const response = await api.post('/api/auth/login', { email, password });
+  // Login function (Aadhaar-compatible)
+const login = async (data) => {
+  try {
+    const response = await api.post('/api/auth/login', data );
 
-      if (response.data.success) {
-        const { user, token } = response.data.data;
+    if (response.data.success) {
+      const { user, token } = response.data.data;
 
-        // Store in state
+      // Store in state
+      setUser(user);
+      setToken(token);
+
+      // Store in localStorage
+      localStorage.setItem('user', JSON.stringify(user));
+      localStorage.setItem('token', token);
+
+      return { success: true };
+    } else {
+      console.log(response.data.message)
+      return {
+        success: false,
+        message: response.data.message || 'Login failed',
+      };
+    }
+  } catch (error) {
+    // Handle backend error messages (e.g., Aadhaar mismatch)
+    const backendMsg =
+      error.response?.data?.message || error.message || 'Login failed';
+    console.log(backendMsg);  
+    return {
+      success: false,
+      message: backendMsg,
+    };
+  }
+};
+
+  // ✅ Updated register function for Aadhaar-based registration
+const register = async (formData) => {
+  try {
+    const response = await api.post('/api/auth/register', formData, {
+      headers: {
+        // Let Axios handle multipart form boundaries automatically
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+
+    if (response.data.success) {
+      const { user, token } = response.data.data || {};
+
+      if (user && token) {
         setUser(user);
         setToken(token);
 
         // Store in localStorage
         localStorage.setItem('user', JSON.stringify(user));
         localStorage.setItem('token', token);
-
-        return { success: true };
       }
-    } catch (error) {
+
+      return { success: true };
+    } else {
       return {
         success: false,
-        message: error.message || 'Login failed',
+        message: response.data.message || 'Registration failed',
       };
     }
-  };
+  } catch (error) {
+    console.error('Registration error:', error);
 
-  // Register function
-  const register = async (name, email, username, password) => {
-    try {
-      const response = await api.post('/api/auth/register', {
-        name,
-        email,
-        username,
-        password,
-      });
-
-      if (response.data.success) {
-        const { user, token } = response.data.data;
-
-        // Store in state
-        setUser(user);
-        setToken(token);
-
-        // Store in localStorage
-        localStorage.setItem('user', JSON.stringify(user));
-        localStorage.setItem('token', token);
-
-        return { success: true };
-      }
-    } catch (error) {
-      return {
-        success: false,
-        message: error.message || 'Registration failed',
-      };
-    }
-  };
+    return {
+      success: false,
+      message:
+        error.response?.data?.message ||
+        error.message ||
+        'Registration failed',
+    };
+  }
+};
 
   // Logout function
   const logout = () => {

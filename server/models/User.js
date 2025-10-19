@@ -3,26 +3,15 @@ const bcrypt = require('bcryptjs');
 
 /**
  * User Schema
- * Core user model with authentication and profile fields
+ * Core user model with authentication and Aadhaar identity verification
  */
 const userSchema = new mongoose.Schema(
   {
-    name: {
+    displayName: {
       type: String,
       required: [true, 'Name is required'],
       trim: true,
       maxlength: [50, 'Name cannot exceed 50 characters'],
-    },
-    email: {
-      type: String,
-      required: [true, 'Email is required'],
-      unique: true,
-      lowercase: true,
-      trim: true,
-      match: [
-        /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
-        'Please provide a valid email',
-      ],
     },
     username: {
       type: String,
@@ -40,6 +29,30 @@ const userSchema = new mongoose.Schema(
       minlength: [6, 'Password must be at least 6 characters'],
       select: false, // Don't include password in queries by default
     },
+
+    // ✅ Aadhaar fields (new additions)
+    aadhaarIdentifier: {
+      type: String, // sha256(name|dob|careof)
+      unique: true,
+      sparse: true, // allows null for users not verified yet
+    },
+    aadhaarVerified: {
+      type: Boolean,
+      default: false,
+    },
+    name: {
+      type: String,
+      default: '',
+    },
+    dob: {
+      type: String,
+      default: '',
+    },
+    careOf: {
+      type: String,
+      default: '',
+    },
+
     profilePicture: {
       type: String,
       default: 'https://via.placeholder.com/150',
@@ -77,7 +90,7 @@ const userSchema = new mongoose.Schema(
     },
   },
   {
-    timestamps: true, // Adds createdAt and updatedAt
+    timestamps: true,
   }
 );
 
@@ -86,24 +99,22 @@ userSchema.index({ name: 'text', username: 'text' });
 
 // Hash password before saving
 userSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) {
-    return next();
-  }
-
+  if (!this.isModified('password')) return next();
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
   next();
 });
 
-// Method to compare password for login
+// Compare password
 userSchema.methods.comparePassword = async function (candidatePassword) {
   return await bcrypt.compare(candidatePassword, this.password);
 };
 
-// Method to get public profile (excluding sensitive data)
+// Public profile (exclude sensitive data)
 userSchema.methods.getPublicProfile = function () {
   const user = this.toObject();
   delete user.password;
+  delete user.aadhaarIdentifier;
   return user;
 };
 

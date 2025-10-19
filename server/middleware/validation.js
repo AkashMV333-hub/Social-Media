@@ -23,15 +23,11 @@ const validate = (req, res, next) => {
 
 // Registration validation
 const validateRegister = [
-  body('name')
-    .trim()
-    .notEmpty().withMessage('Name is required')
-    .isLength({ min: 2, max: 50 }).withMessage('Name must be between 2 and 50 characters'),
-  body('email')
-    .trim()
-    .notEmpty().withMessage('Email is required')
-    .isEmail().withMessage('Please provide a valid email')
-    .normalizeEmail(),
+  body('displayName')
+    .notEmpty().withMessage('displayName is required')
+    .isLength({ min: 2, max: 50 }).withMessage('displayName must be between 2 and 50 characters'),
+  body('shareCode')
+    .notEmpty().withMessage('shareCode is required'),
   body('username')
     .trim()
     .notEmpty().withMessage('Username is required')
@@ -45,13 +41,17 @@ const validateRegister = [
 
 // Login validation
 const validateLogin = [
-  body('email')
+  body('username')
     .trim()
-    .notEmpty().withMessage('Email is required')
-    .isEmail().withMessage('Please provide a valid email')
-    .normalizeEmail(),
+    .notEmpty().withMessage('Username is required'),
   body('password')
     .notEmpty().withMessage('Password is required'),
+  body('name')
+    .notEmpty().withMessage('Name is required'),
+  body('dob')
+    .notEmpty().withMessage('DOB is required'),
+  body('careOf')
+    .notEmpty().withMessage('careOf is required'),
   validate,
 ];
 

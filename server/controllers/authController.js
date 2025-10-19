@@ -1,111 +1,200 @@
-const User = require('../models/User');
-const { generateToken } = require('../utils/tokenUtils');
+const fs = require("fs");
+const crypto = require("crypto");
+const jwt = require("jsonwebtoken");
+const { Blob } = require('buffer');
+const { DOMParser } = require('xmldom');
+const zip = require('@zip.js/zip.js');
+const { parseStringPromise } = require("xml2js");
+const User = require("../models/User"); // not destructured
+require("dotenv").config();
 
-/**
- * @desc    Register a new user
- * @route   POST /api/auth/register
- * @access  Public
- */
+// Helper: generate JWT
+const generateToken = (userId) => {
+  return jwt.sign({ id: userId }, process.env.JWT_SECRET, {
+    expiresIn: "7d",
+  });
+};
+
+// Helper: create Aadhaar hash
+const createAadhaarHash = (name, dob, careOf) => {
+  const input = `${name.trim().toLowerCase()}|${dob.trim()}|${careOf.trim().toLowerCase()}`;
+  return crypto.createHash("sha256").update(input).digest("hex");
+};
+
+// ✅ REGISTER (first time using Aadhaar XML)
 const register = async (req, res, next) => {
   try {
-    const { name, email, username, password } = req.body;
+    if (!req.file) {
+      return res.status(400).json({ success: false, message: 'No file uploaded' });
+    }
 
-    // Check if user already exists
-    const existingEmail = await User.findOne({ email });
-    if (existingEmail) {
+    const username = req.body.username;
+    const displayName = req.body.displayName;
+    const password = req.body.password;
+    const shareCode = req.body.shareCode;
+
+    if (!username || !displayName || !password || !shareCode) {
       return res.status(400).json({
         success: false,
-        message: 'Email is already registered',
+        message:
+          "Username, display name, password, Aadhaar XML, and share code are required",
       });
     }
 
-    const existingUsername = await User.findOne({ username });
-    if (existingUsername) {
+    // Check if username exists
+    const existing = await User.findOne({ username });
+    if (existing) {
       return res.status(400).json({
         success: false,
-        message: 'Username is already taken',
+        message: "Username already exists",
       });
     }
 
-    // Create user
+    if (!shareCode) {
+      return res.status(400).json({ success: false, message: 'Missing share code' });
+    }
+
+    // Read uploaded file
+    const fileData = fs.readFileSync(req.file.path);
+    const blob = new Blob([fileData]);
+
+    // Open ZIP using zip.js
+    const reader = new zip.ZipReader(new zip.BlobReader(blob), { password: shareCode });
+    const entries = await reader.getEntries();
+
+    const xmlEntry = entries.find((e) => e.filename.endsWith('.xml'));
+    if (!xmlEntry) {
+      await reader.close();
+      return res.status(400).json({ success: false, message: 'No XML found inside ZIP' });
+    }
+
+    const xmlText = await xmlEntry.getData(new zip.TextWriter());
+    await reader.close();
+
+    // Parse XML
+    const xmlDoc = new DOMParser().parseFromString(xmlText, 'application/xml');
+
+    // Extract Poi and Poa info
+    const poi = xmlDoc.getElementsByTagName('Poi')[0];
+    const poa = xmlDoc.getElementsByTagName('Poa')[0];
+
+    const name = poi?.getAttribute('name');
+    const dob = poi?.getAttribute('dob');
+    let careOf = poa?.getAttribute('careof');
+
+    // If careOf has format "S/O: Someone", split by ":" and take right part
+    if (careOf.includes(':')) careOf = careOf.split(':')[1].trim();
+
+    if (!name || !dob || !careOf) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid Aadhaar XML: missing name or DOB",
+      });
+    }
+
+    // Generate Aadhaar hash
+    const aadhaarHash = createAadhaarHash(name, dob, careOf);
+
+    const aadhaarExisting = await User.findOne({ aadhaarIdentifier: aadhaarHash });
+    if (aadhaarExisting) {
+      return res.status(400).json({
+        success: false,
+        message: "Aadhaar already exists",
+      });
+    }
+
+    // Save user
     const user = await User.create({
-      name,
-      email,
       username,
-      password, // Will be hashed by pre-save middleware
+      displayName: displayName,
+      name, // display name (shown publicly)
+      password, // hashed by pre-save middleware
+      dob,
+      careOf,
+      aadhaarIdentifier: aadhaarHash,
+      aadhaarVerified: true,
     });
 
-    // Generate JWT token
     const token = generateToken(user._id);
 
     res.status(201).json({
       success: true,
-      message: 'User registered successfully',
+      message: "Registration successful with Aadhaar verification",
       data: {
         user: user.getPublicProfile(),
         token,
       },
     });
   } catch (error) {
+    console.error("Registration error:", error);
     next(error);
   }
 };
 
-/**
- * @desc    Login user
- * @route   POST /api/auth/login
- * @access  Public
- */
+// ✅ LOGIN (verify password + Aadhaar hash)
 const login = async (req, res, next) => {
   try {
-    const { email, password } = req.body;
+    const { username, password, name, dob, careOf } = req.body;
 
-    // Find user and include password field
-    const user = await User.findOne({ email }).select('+password');
+    if (!username || !password || !name || !dob || !careOf) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "All fields (username, password, name, dob, careOf) are required",
+      });
+    }
 
+    // Step 1: Find user
+    const user = await User.findOne({ username }).select("+password");
     if (!user) {
       return res.status(401).json({
         success: false,
-        message: 'Invalid email or password',
+        message: "User not found. Please register first.",
       });
     }
 
-    // Check password
+    // Step 2: Verify password
     const isPasswordMatch = await user.comparePassword(password);
-
     if (!isPasswordMatch) {
       return res.status(401).json({
         success: false,
-        message: 'Invalid email or password',
+        message: "Invalid username or password",
       });
     }
 
-    // Generate JWT token
+    // Step 3: Recreate Aadhaar hash
+    const loginHash = createAadhaarHash(name, dob, careOf);
+
+    // Step 4: Compare Aadhaar hash
+    if (loginHash !== user.aadhaarIdentifier) {
+      return res.status(401).json({
+        success: false,
+        message:
+          "Aadhaar verification failed. Please enter exact details as in Aadhaar.",
+      });
+    }
+
+    // Step 5: Generate JWT token
     const token = generateToken(user._id);
 
     res.status(200).json({
       success: true,
-      message: 'Login successful',
+      message: "Login successful with Aadhaar and password verification",
       data: {
         user: user.getPublicProfile(),
         token,
       },
     });
   } catch (error) {
+    console.error("Login error:", error);
     next(error);
   }
 };
 
-/**
- * @desc    Get current logged in user
- * @route   GET /api/auth/me
- * @access  Private
- */
+// ✅ Get current user info
 const getMe = async (req, res, next) => {
   try {
-    // req.user is set by auth middleware
     const user = await User.findById(req.user._id);
-
     res.status(200).json({
       success: true,
       data: {
@@ -117,18 +206,12 @@ const getMe = async (req, res, next) => {
   }
 };
 
-/**
- * @desc    Logout user (client-side token removal)
- * @route   POST /api/auth/logout
- * @access  Private
- * @note    With JWT, actual logout happens client-side by removing token
- *          This endpoint exists for consistency and future enhancements (token blacklist, etc.)
- */
+// ✅ Logout (client-side token removal)
 const logout = async (req, res, next) => {
   try {
     res.status(200).json({
       success: true,
-      message: 'Logged out successfully',
+      message: "Logged out successfully",
     });
   } catch (error) {
     next(error);

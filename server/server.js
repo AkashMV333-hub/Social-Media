@@ -30,7 +30,7 @@ app.use(helmet({
   crossOriginResourcePolicy: { policy: "cross-origin" }
 })); // Security headers with cross-origin policy
 app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:3000',
+  origin: process.env.CLIENT_URL || 'http://localhost:3000' || 'http://localhost:3002',
   credentials: true,
 }));
 app.use(express.json()); // Body parser
@@ -40,7 +40,7 @@ app.use(morgan('dev')); // Request logger
 // Serve static files (uploaded images for local storage) with CORS headers
 app.use('/uploads', (req, res, next) => {
   res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
-  res.setHeader('Access-Control-Allow-Origin', process.env.CLIENT_URL || 'http://localhost:3002');
+  res.setHeader('Access-Control-Allow-Origin', process.env.CLIENT_URL || 'http://localhost:3000' || 'http://localhost:3002');
   next();
 }, express.static(path.join(__dirname, 'uploads')));
 
@@ -53,6 +53,7 @@ app.use('/api/comments', require('./routes/commentRoutes'));
 app.use('/api/notifications', require('./routes/notificationRoutes'));
 app.use('/api/messages', require('./routes/messageRoutes'));
 app.use('/api/search', require('./routes/searchRoutes'));
+app.use('/api/aadhaar', require('./routes/aadhaarRoutes'));
 
 // Add comment routes to tweet routes
 const { createComment, getComments } = require('./controllers/commentController');
