@@ -241,3 +241,25 @@ a, button, input, textarea, select, [role="button"] {
     linear-gradient(90deg, rgba(99, 102, 241, 0.1) 1px, transparent 1px);
   background-size: 50px 50px;
 }
+
+/* Glow effect for cards */
+.tweet-card-glow {
+  transition: all 0.3s ease;
+}
+
+.tweet-card-glow:hover {
+  box-shadow:
+    0 20px 60px rgba(99, 102, 241, 0.5),
+    0 0 40px rgba(139, 92, 246, 0.3),
+    inset 0 0 20px rgba(99, 102, 241, 0.1) !important;
+}
+
+/* Profile name glow */
+.profile-name-glow {
+  text-shadow: 0 0 10px rgba(99, 102, 241, 0.5);
+  transition: all 0.3s ease;
+}
+
+.profile-name-glow:hover {
+  text-shadow: 0 0 20px rgba(99, 102, 241, 0.8);
+}

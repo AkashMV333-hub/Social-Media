@@ -1,20 +1,55 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useMemo } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 gsap.registerPlugin(ScrollTrigger);
+
+// Random gradient backgrounds for tweet cards
+const cardColors = [
+  'from-purple-500/10 to-pink-500/10',
+  'from-blue-500/10 to-cyan-500/10',
+  'from-green-500/10 to-emerald-500/10',
+  'from-orange-500/10 to-red-500/10',
+  'from-indigo-500/10 to-purple-500/10',
+  'from-rose-500/10 to-pink-500/10',
+  'from-teal-500/10 to-green-500/10',
+  'from-yellow-500/10 to-orange-500/10',
+  'from-violet-500/10 to-purple-500/10',
+];
+
+// Colored backgrounds for profile names
+const nameColors = [
+  'bg-gradient-to-r from-purple-500/20 to-pink-500/20',
+  'bg-gradient-to-r from-blue-500/20 to-cyan-500/20',
+  'bg-gradient-to-r from-green-500/20 to-emerald-500/20',
+  'bg-gradient-to-r from-orange-500/20 to-red-500/20',
+  'bg-gradient-to-r from-indigo-500/20 to-purple-500/20',
+];
+
+// Get consistent color for username
+const getNameColor = (username) => {
+  const hash = (username || '').split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  return nameColors[hash % nameColors.length];
+};
 
 function AnimatedTweetCard({ tweet, onLike, onComment }) {
   const cardRef = useRef(null);
   const [particles, setParticles] = useState([]);
   const [isLiked, setIsLiked] = useState(false);
 
+  // Select random color for this tweet card
+  const randomCardColor = useMemo(() => {
+    return cardColors[Math.floor(Math.random() * cardColors.length)];
+  }, []);
+
   useEffect(() => {
     if (!cardRef.current) return;
 
+    const card = cardRef.current;
+
     // GSAP ScrollTrigger animation
     gsap.fromTo(
-      cardRef.current,
+      card,
       {
         opacity: 0,
         y: 50,
@@ -29,13 +64,38 @@ function AnimatedTweetCard({ tweet, onLike, onComment }) {
         duration: 0.8,
         ease: 'power3.out',
         scrollTrigger: {
-          trigger: cardRef.current,
+          trigger: card,
           start: 'top 85%',
           end: 'top 65%',
           toggleActions: 'play none none reverse',
         },
       }
     );
+
+    // Glowing hover effect
+    const handleMouseEnter = () => {
+      gsap.to(card, {
+        scale: 1.02,
+        duration: 0.3,
+        ease: 'power2.out',
+      });
+    };
+
+    const handleMouseLeave = () => {
+      gsap.to(card, {
+        scale: 1,
+        duration: 0.3,
+        ease: 'power2.out',
+      });
+    };
+
+    card.addEventListener('mouseenter', handleMouseEnter);
+    card.addEventListener('mouseleave', handleMouseLeave);
+
+    return () => {
+      card.removeEventListener('mouseenter', handleMouseEnter);
+      card.removeEventListener('mouseleave', handleMouseLeave);
+    };
   }, []);
 
   const handleLikeClick = () => {
@@ -86,10 +146,11 @@ function AnimatedTweetCard({ tweet, onLike, onComment }) {
   return (
     <div
       ref={cardRef}
-      className="relative bg-gradient-to-br from-white/90 to-white/70 backdrop-blur-lg rounded-2xl p-6 mb-4 shadow-lg border border-white/20 transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:shadow-purple-500/20"
+      className={`relative bg-gradient-to-br ${randomCardColor} backdrop-blur-xl rounded-2xl p-6 mb-4 border border-white/10 transition-all duration-300 tweet-card-glow`}
       style={{
         perspective: '1000px',
         transformStyle: 'preserve-3d',
+        boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
       }}
     >
       {/* Particle burst container */}
@@ -109,17 +170,22 @@ function AnimatedTweetCard({ tweet, onLike, onComment }) {
 
       {/* User info */}
       <div className="flex items-start gap-3 mb-4">
-        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white font-bold text-lg">
+        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white font-bold text-lg ring-2 ring-primary/50 hover:ring-primary transition-all duration-300 transform hover:scale-110 hover:shadow-[0_0_30px_rgba(99,102,241,0.6)] group cursor-pointer">
           {tweet.user?.username?.[0]?.toUpperCase() || 'U'}
         </div>
         <div className="flex-1">
-          <h3 className="font-semibold text-gray-900">{tweet.user?.fullName || 'User'}</h3>
-          <p className="text-sm text-gray-500">@{tweet.user?.username || 'username'}</p>
+          <span className={`${getNameColor(tweet.user?.username)} px-3 py-1 rounded-full font-bold inline-block profile-name-glow cursor-pointer text-text-primary hover:text-primary transition-colors relative group`}>
+            {tweet.user?.fullName || 'User'}
+            <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-primary to-secondary group-hover:w-full transition-all duration-300"
+              style={{ boxShadow: '0 0 10px rgba(99, 102, 241, 0.8)' }}
+            />
+          </span>
+          <p className="text-sm text-gray-400 mt-1">@{tweet.user?.username || 'username'}</p>
         </div>
       </div>
 
       {/* Tweet content */}
-      <p className="text-gray-800 mb-4 leading-relaxed">{tweet.content}</p>
+      <p className="text-gray-200 mb-4 leading-relaxed">{tweet.content}</p>
 
       {/* Tweet image */}
       {tweet.image && (
@@ -133,10 +199,10 @@ function AnimatedTweetCard({ tweet, onLike, onComment }) {
       )}
 
       {/* Actions */}
-      <div className="flex items-center gap-6 pt-3 border-t border-gray-200/50">
+      <div className="flex items-center gap-6 pt-3 border-t border-gray-700/50">
         <button
           onClick={handleLikeClick}
-          className="flex items-center gap-2 text-gray-600 hover:text-pink-500 transition-colors relative"
+          className="flex items-center gap-2 text-gray-400 hover:text-pink-500 transition-colors relative"
         >
           <svg
             className={`w-5 h-5 transition-transform ${isLiked ? 'scale-125 fill-pink-500 text-pink-500' : ''}`}
@@ -158,7 +224,7 @@ function AnimatedTweetCard({ tweet, onLike, onComment }) {
 
         <button
           onClick={() => onComment && onComment(tweet.id)}
-          className="flex items-center gap-2 text-gray-600 hover:text-indigo-500 transition-colors"
+          className="flex items-center gap-2 text-gray-400 hover:text-indigo-500 transition-colors"
         >
           <svg
             className="w-5 h-5"
@@ -176,7 +242,7 @@ function AnimatedTweetCard({ tweet, onLike, onComment }) {
           <span>{tweet.comments?.length || 0}</span>
         </button>
 
-        <button className="flex items-center gap-2 text-gray-600 hover:text-green-500 transition-colors ml-auto">
+        <button className="flex items-center gap-2 text-gray-400 hover:text-green-500 transition-colors ml-auto">
           <svg
             className="w-5 h-5"
             fill="none"
