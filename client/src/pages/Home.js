@@ -47,15 +47,16 @@ const Home = () => {
   };
 
   return (
-    <PageTransition>
-      <div className="min-h-screen bg-dark-900 relative">
-        {/* 3D Particle Wave Background */}
-        <ParticleWave />
+    <>
+      {/* 3D Particle Wave Background - Outside everything */}
+      <ParticleWave />
 
-        <Navbar />
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 relative z-10">
-          <div className="flex gap-6">
-            <Sidebar />
+      <PageTransition>
+        <div className="min-h-screen relative">
+          <Navbar />
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 relative z-10">
+            <div className="flex gap-6">
+              <Sidebar />
 
             <main className="flex-1 max-w-3xl">
               <div className="bg-dark-800/80 backdrop-blur-xl rounded-2xl shadow-card overflow-hidden border border-dark-600">
@@ -118,33 +119,13 @@ const Home = () => {
             </main>
 
             <aside className="hidden lg:block w-80">
-              <div className="bg-dark-800/80 backdrop-blur-xl rounded-2xl shadow-card p-6 border border-dark-600 sticky top-6">
-                <TextReveal className="font-bold text-xl mb-4 text-text-primary bg-gradient-primary bg-clip-text text-transparent">
-                  Trending Topics
-                </TextReveal>
-                <div className="space-y-4">
-                  <div className="p-4 rounded-xl hover:bg-dark-700 transition-colors duration-200 cursor-pointer">
-                    <p className="text-text-subtle text-xs mb-1">Trending in Tech</p>
-                    <p className="text-text-primary font-semibold">#WebDevelopment</p>
-                    <p className="text-text-muted text-sm mt-1">2.5K posts</p>
-                  </div>
-                  <div className="p-4 rounded-xl hover:bg-dark-700 transition-colors duration-200 cursor-pointer">
-                    <p className="text-text-subtle text-xs mb-1">Trending Worldwide</p>
-                    <p className="text-text-primary font-semibold">#Innovation</p>
-                    <p className="text-text-muted text-sm mt-1">1.8K posts</p>
-                  </div>
-                  <div className="p-4 rounded-xl hover:bg-dark-700 transition-colors duration-200 cursor-pointer">
-                    <p className="text-text-subtle text-xs mb-1">Popular</p>
-                    <p className="text-text-primary font-semibold">#Design</p>
-                    <p className="text-text-muted text-sm mt-1">1.2K posts</p>
-                  </div>
-                </div>
-              </div>
+
             </aside>
           </div>
         </div>
-      </div>
-    </PageTransition>
+        </div>
+      </PageTransition>
+    </>
   );
 };
 

@@ -56,16 +56,6 @@ const Sidebar = () => {
             </Link>
           ))}
         </nav>
-
-        <div className="mt-6 pt-6 border-t border-dark-600">
-          <div className="px-4 py-3 rounded-xl bg-gradient-primary/10 border border-primary/20">
-            <p className="text-sm font-semibold text-text-primary mb-1">Premium Features</p>
-            <p className="text-xs text-text-muted">Unlock exclusive content and features</p>
-            <button className="mt-3 w-full btn-primary text-sm py-2">
-              Upgrade Now
-            </button>
-          </div>
-        </div>
       </div>
     </aside>
   );

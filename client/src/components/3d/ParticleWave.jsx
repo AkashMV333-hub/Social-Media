@@ -82,7 +82,7 @@ function WaveParticles() {
         />
       </bufferGeometry>
       <pointsMaterial
-        size={0.05}
+        size={0.09}
         vertexColors
         transparent={false}
         sizeAttenuation={true}
@@ -94,7 +94,7 @@ function WaveParticles() {
 export default function ParticleWave() {
   return (
     <div className="fixed inset-0 z-0 bg-black">
-      <Canvas camera={{ position: [0, 10, 20], fov: 90 }}>
+      <Canvas camera={{ position: [0, 3, 30], fov: 75 }}>
         <ambientLight intensity={3} />
         <pointLight position={[0, 10, 10]} intensity={10} color="#ffffff" />
         <pointLight position={[0, -10, 10]} intensity={10} color="#ffffff" />
