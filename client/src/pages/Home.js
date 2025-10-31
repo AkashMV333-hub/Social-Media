@@ -5,6 +5,11 @@ import Sidebar from '../components/layout/Sidebar';
 import TweetComposer from '../components/tweet/TweetComposer';
 import TweetCard from '../components/tweet/TweetCard';
 import LoadingSpinner from '../components/common/LoadingSpinner';
+import ParticleWave from '../components/3d/ParticleWave';
+import AnimatedTweetCard from '../components/animations/AnimatedTweetCard';
+import PageTransition from '../components/animations/PageTransition';
+import TextReveal from '../components/animations/TextReveal';
+import { mockTweets } from '../utils/mockData';
 
 const Home = () => {
   const [tweets, setTweets] = useState([]);
@@ -18,9 +23,14 @@ const Home = () => {
   const fetchTweets = async () => {
     try {
       setLoading(true);
-      const endpoint = activeTab === 'feed' ? '/api/tweets/feed' : '/api/tweets/latest';
-      const response = await api.get(endpoint);
-      setTweets(response.data.data.tweets);
+      // Using mock data for testing animations
+      // const endpoint = activeTab === 'feed' ? '/api/tweets/feed' : '/api/tweets/latest';
+      // const response = await api.get(endpoint);
+      // setTweets(response.data.data.tweets);
+
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 500));
+      setTweets(mockTweets);
     } catch (error) {
       console.error('Error fetching tweets:', error);
     } finally {
@@ -37,71 +47,104 @@ const Home = () => {
   };
 
   return (
-    <div className="min-h-screen bg-spotify-black">
-      <Navbar />
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-        <div className="flex gap-4">
-          <Sidebar />
+    <PageTransition>
+      <div className="min-h-screen bg-dark-900 relative">
+        {/* 3D Particle Wave Background */}
+        <ParticleWave />
 
-          <main className="flex-1 max-w-2xl">
-            <div className="bg-spotify-gray rounded-lg shadow-lg">
-              <div className="border-b border-spotify-border">
-                <div className="flex">
-                  <button
-                    className={`flex-1 py-4 font-semibold transition-colors ${
-                      activeTab === 'feed'
-                        ? 'text-spotify-green border-b-2 border-spotify-green'
-                        : 'text-spotify-text-gray hover:text-spotify-text'
-                    }`}
-                    onClick={() => setActiveTab('feed')}
-                  >
-                    Home Feed
-                  </button>
-                  <button
-                    className={`flex-1 py-4 font-semibold transition-colors ${
-                      activeTab === 'latest'
-                        ? 'text-spotify-green border-b-2 border-spotify-green'
-                        : 'text-spotify-text-gray hover:text-spotify-text'
-                    }`}
-                    onClick={() => setActiveTab('latest')}
-                  >
-                    Latest
-                  </button>
+        <Navbar />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 relative z-10">
+          <div className="flex gap-6">
+            <Sidebar />
+
+            <main className="flex-1 max-w-3xl">
+              <div className="bg-dark-800/80 backdrop-blur-xl rounded-2xl shadow-card overflow-hidden border border-dark-600">
+                <div className="border-b border-dark-600 bg-dark-800/50 backdrop-blur-xl">
+                  <div className="flex p-2 gap-2">
+                    <button
+                      className={`flex-1 py-3 px-6 font-semibold rounded-xl transition-all duration-200 ${
+                        activeTab === 'feed'
+                          ? 'bg-gradient-primary text-white shadow-glow-sm'
+                          : 'text-text-muted hover:text-text-primary hover:bg-dark-700'
+                      }`}
+                      onClick={() => setActiveTab('feed')}
+                    >
+                      For You
+                    </button>
+                    <button
+                      className={`flex-1 py-3 px-6 font-semibold rounded-xl transition-all duration-200 ${
+                        activeTab === 'latest'
+                          ? 'bg-gradient-primary text-white shadow-glow-sm'
+                          : 'text-text-muted hover:text-text-primary hover:bg-dark-700'
+                      }`}
+                      onClick={() => setActiveTab('latest')}
+                    >
+                      Discover
+                    </button>
+                  </div>
+                </div>
+
+                <TweetComposer onTweetCreated={handleTweetCreated} />
+
+                {loading ? (
+                  <div className="p-12 flex justify-center">
+                    <LoadingSpinner />
+                  </div>
+                ) : tweets.length === 0 ? (
+                  <div className="p-16 text-center">
+                    <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-primary/10 flex items-center justify-center">
+                      <span className="text-5xl">📭</span>
+                    </div>
+                    <TextReveal className="text-xl font-bold text-text-primary mb-2">
+                      {activeTab === 'feed' ? 'Nothing here yet' : 'No posts found'}
+                    </TextReveal>
+                    <p className="text-text-muted">
+                      {activeTab === 'feed'
+                        ? 'Follow users to see their posts in your feed'
+                        : 'Be the first to share something!'}
+                    </p>
+                  </div>
+                ) : (
+                  <div className="p-4 space-y-4">
+                    {tweets.map((tweet, index) => (
+                      <AnimatedTweetCard
+                        key={tweet.id}
+                        tweet={tweet}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+            </main>
+
+            <aside className="hidden lg:block w-80">
+              <div className="bg-dark-800/80 backdrop-blur-xl rounded-2xl shadow-card p-6 border border-dark-600 sticky top-6">
+                <TextReveal className="font-bold text-xl mb-4 text-text-primary bg-gradient-primary bg-clip-text text-transparent">
+                  Trending Topics
+                </TextReveal>
+                <div className="space-y-4">
+                  <div className="p-4 rounded-xl hover:bg-dark-700 transition-colors duration-200 cursor-pointer">
+                    <p className="text-text-subtle text-xs mb-1">Trending in Tech</p>
+                    <p className="text-text-primary font-semibold">#WebDevelopment</p>
+                    <p className="text-text-muted text-sm mt-1">2.5K posts</p>
+                  </div>
+                  <div className="p-4 rounded-xl hover:bg-dark-700 transition-colors duration-200 cursor-pointer">
+                    <p className="text-text-subtle text-xs mb-1">Trending Worldwide</p>
+                    <p className="text-text-primary font-semibold">#Innovation</p>
+                    <p className="text-text-muted text-sm mt-1">1.8K posts</p>
+                  </div>
+                  <div className="p-4 rounded-xl hover:bg-dark-700 transition-colors duration-200 cursor-pointer">
+                    <p className="text-text-subtle text-xs mb-1">Popular</p>
+                    <p className="text-text-primary font-semibold">#Design</p>
+                    <p className="text-text-muted text-sm mt-1">1.2K posts</p>
+                  </div>
                 </div>
               </div>
-
-              <TweetComposer onTweetCreated={handleTweetCreated} />
-
-              {loading ? (
-                <LoadingSpinner />
-              ) : tweets.length === 0 ? (
-                <div className="p-8 text-center text-spotify-text-subdued">
-                  {activeTab === 'feed'
-                    ? 'Follow users to see their tweets here'
-                    : 'No tweets yet'}
-                </div>
-              ) : (
-                tweets.map((tweet, index) => (
-                  <TweetCard
-                    key={tweet._id}
-                    tweet={tweet}
-                    index={index}
-                    onDelete={handleTweetDeleted}
-                  />
-                ))
-              )}
-            </div>
-          </main>
-
-          <aside className="hidden lg:block w-80">
-            <div className="bg-spotify-gray rounded-lg shadow-lg p-4">
-              <h3 className="font-bold text-lg mb-2 text-spotify-text">Trending</h3>
-              <p className="text-spotify-text-subdued text-sm">Coming soon...</p>
-            </div>
-          </aside>
+            </aside>
+          </div>
         </div>
       </div>
-    </div>
+    </PageTransition>
   );
 };
 

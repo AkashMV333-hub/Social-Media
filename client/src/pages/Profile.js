@@ -51,33 +51,33 @@ const Profile = () => {
   }
 
   return (
-    <div className="min-h-screen bg-spotify-black">
+    <div className="min-h-screen bg-dark-900">
       <Navbar />
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-        <div className="flex gap-4">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div className="flex gap-6">
           <Sidebar />
 
-          <main className="flex-1 max-w-2xl">
-            <div className="bg-spotify-gray rounded-lg shadow-lg">
+          <main className="flex-1 max-w-3xl">
+            <div className="bg-dark-800 rounded-2xl shadow-card overflow-hidden border border-dark-600">
               <ProfileHeader user={user} onUpdate={fetchUserProfile} />
 
-              <div className="border-b border-spotify-border">
-                <div className="flex">
+              <div className="border-b border-dark-600 bg-dark-800/50 backdrop-blur-xl">
+                <div className="flex p-2 gap-2">
                   <button
-                    className={`flex-1 py-4 font-semibold transition-colors ${
+                    className={`flex-1 py-3 px-6 font-semibold rounded-xl transition-all duration-200 ${
                       activeTab === 'tweets'
-                        ? 'text-spotify-green border-b-2 border-spotify-green'
-                        : 'text-spotify-text-gray hover:text-spotify-text'
+                        ? 'bg-gradient-primary text-white shadow-glow-sm'
+                        : 'text-text-muted hover:text-text-primary hover:bg-dark-700'
                     }`}
                     onClick={() => setActiveTab('tweets')}
                   >
-                    Tweets
+                    Posts
                   </button>
                   <button
-                    className={`flex-1 py-4 font-semibold transition-colors ${
+                    className={`flex-1 py-3 px-6 font-semibold rounded-xl transition-all duration-200 ${
                       activeTab === 'media'
-                        ? 'text-spotify-green border-b-2 border-spotify-green'
-                        : 'text-spotify-text-gray hover:text-spotify-text'
+                        ? 'bg-gradient-primary text-white shadow-glow-sm'
+                        : 'text-text-muted hover:text-text-primary hover:bg-dark-700'
                     }`}
                     onClick={() => setActiveTab('media')}
                   >
@@ -87,15 +87,23 @@ const Profile = () => {
               </div>
 
               {loading ? (
-                <LoadingSpinner />
+                <div className="p-12 flex justify-center">
+                  <LoadingSpinner />
+                </div>
               ) : tweets.length === 0 ? (
-                <div className="p-8 text-center text-spotify-text-subdued">
-                  No tweets yet
+                <div className="p-16 text-center">
+                  <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-primary/10 flex items-center justify-center">
+                    <span className="text-5xl">📝</span>
+                  </div>
+                  <h3 className="text-xl font-bold text-text-primary mb-2">No posts yet</h3>
+                  <p className="text-text-muted">Start sharing your thoughts!</p>
                 </div>
               ) : (
-                tweets.map((tweet, index) => (
-                  <TweetCard key={tweet._id} tweet={tweet} index={index} />
-                ))
+                <div className="divide-y divide-dark-600">
+                  {tweets.map((tweet, index) => (
+                    <TweetCard key={tweet._id} tweet={tweet} index={index} />
+                  ))}
+                </div>
               )}
             </div>
           </main>

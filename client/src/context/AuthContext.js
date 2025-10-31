@@ -32,6 +32,23 @@ export const AuthProvider = ({ children }) => {
       // Verify token is still valid
       verifyToken();
     } else {
+      // Auto-login for testing
+      const dummyUser = {
+        id: '1',
+        username: 'demo_user',
+        fullName: 'Demo User',
+        email: 'demo@example.com',
+        profilePicture: null,
+        coverPhoto: null,
+        bio: 'Testing the amazing new UI!',
+        followers: [],
+        following: [],
+      };
+
+      setUser(dummyUser);
+      setToken('demo-token');
+      localStorage.setItem('user', JSON.stringify(dummyUser));
+      localStorage.setItem('token', 'demo-token');
       setLoading(false);
     }
   }, []);

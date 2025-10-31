@@ -61,86 +61,99 @@ const TweetCard = ({ tweet, onDelete, index = 0 }) => {
   };
 
   return (
-    <div className="border-b border-spotify-border p-4 hover:bg-spotify-light-gray hover:bg-opacity-50 transition-all duration-200 tweet-card">
-      <div className="flex gap-3">
-        <Link to={`/profile/${tweet.author.username}`}>
-          <img
-            src={getImageUrl(tweet.author.profilePicture)}
-            alt={tweet.author.name}
-            className="w-12 h-12 rounded-full object-cover bg-spotify-light-gray"
-            onError={(e) => {
-              e.target.onerror = null;
-              e.target.src = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(tweet.author.name) + '&background=1DB954&color=fff&size=150';
-            }}
-          />
+    <div className="border-b border-dark-600 p-6 tweet-card backdrop-blur-sm rounded-lg mb-2">
+      <div className="flex gap-4">
+        <Link to={`/profile/${tweet.author.username}`} className="flex-shrink-0">
+          <div className="relative group">
+            <div className="absolute inset-0 bg-gradient-primary rounded-full blur-md opacity-0 group-hover:opacity-60 transition-opacity duration-300"></div>
+            <img
+              src={getImageUrl(tweet.author.profilePicture)}
+              alt={tweet.author.name}
+              className="relative w-14 h-14 rounded-full object-cover ring-2 ring-dark-600 group-hover:ring-primary transition-all duration-300"
+              onError={(e) => {
+                e.target.onerror = null;
+                e.target.src = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(tweet.author.name) + '&background=6366f1&color=fff&size=150';
+              }}
+            />
+          </div>
         </Link>
 
         <div className="flex-1">
           <div className="flex items-start justify-between">
-            <div>
+            <div className="flex flex-col">
               <Link
                 to={`/profile/${tweet.author.username}`}
-                className="font-bold text-spotify-text hover:underline transition-opacity duration-200"
+                className="font-bold text-text-primary hover:text-primary transition-colors duration-200 text-lg"
               >
                 {tweet.author.name}
               </Link>
-              <span className="text-spotify-text-gray ml-2">
-                @{tweet.author.username} ·{' '}
-                {formatDistanceToNow(new Date(tweet.createdAt), { addSuffix: true })}
+              <span className="text-text-muted text-sm">
+                @{tweet.author.username} · {formatDistanceToNow(new Date(tweet.createdAt), { addSuffix: true })}
               </span>
             </div>
 
             {currentUser?._id === tweet.author._id && (
               <button
                 onClick={handleDelete}
-                className="text-spotify-text-gray hover:text-red-600 transition-colors duration-200"
+                className="text-text-muted hover:text-red-500 hover:bg-red-500/10 p-2 rounded-lg transition-all duration-200"
+                title="Delete post"
               >
-                <FaTrash />
+                <FaTrash className="w-4 h-4" />
               </button>
             )}
           </div>
 
           {!tweet.image ? (
             <div
-              className="mt-3 rounded-lg w-full flex items-center justify-center p-6"
+              className="mt-4 rounded-2xl w-full flex items-center justify-center p-8 shadow-card hover:shadow-card-hover transition-all duration-300 overflow-hidden relative group"
               style={{
                 backgroundColor,
                 minHeight: '24rem',
                 maxHeight: '24rem'
               }}
             >
-              <p className={`text-white font-bold ${getDynamicFontSize(tweet.text)} leading-snug text-center break-words w-full`}>
+              <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <p className={`relative text-white font-bold ${getDynamicFontSize(tweet.text)} leading-snug text-center break-words w-full drop-shadow-lg`}>
                 {tweet.text}
               </p>
             </div>
           ) : (
             <>
-              <p className="mt-2 text-spotify-text">{tweet.text}</p>
-              <img
-                src={getImageUrl(tweet.image)}
-                alt="Tweet"
-                className="mt-3 rounded-lg max-h-96 w-full object-cover border border-spotify-border"
-              />
+              <p className="mt-4 text-text-secondary text-base leading-relaxed">{tweet.text}</p>
+              <div className="mt-4 rounded-2xl overflow-hidden border border-dark-600 hover:border-primary/30 transition-all duration-300 shadow-card hover:shadow-card-hover group">
+                <img
+                  src={getImageUrl(tweet.image)}
+                  alt="Post image"
+                  className="w-full max-h-[32rem] object-cover group-hover:scale-105 transition-transform duration-500"
+                />
+              </div>
             </>
           )}
 
-          <div className="flex items-center gap-6 mt-3 text-spotify-text-gray">
-            <button
-              onClick={() => setShowComments(!showComments)}
-              className="flex items-center gap-2 hover:text-spotify-green transition-colors duration-200"
-            >
-              <FaComment />
-              <span>{commentsCount}</span>
-            </button>
+          <div className="flex items-center gap-2 mt-5">
 
             <button
               onClick={handleLike}
-              className={`flex items-center gap-2 transition-colors duration-200 ${
-                liked ? 'text-red-500' : 'hover:text-red-500'
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all duration-200 group ${
+                liked
+                  ? 'text-red-500 bg-red-500/10'
+                  : 'text-text-muted hover:text-red-500 hover:bg-red-500/10'
               }`}
             >
-              {liked ? <FaHeart /> : <FaRegHeart />}
-              <span>{likesCount}</span>
+              {liked ? (
+                <FaHeart className="w-4 h-4 group-hover:scale-125 transition-transform" />
+              ) : (
+                <FaRegHeart className="w-4 h-4 group-hover:scale-110 transition-transform" />
+              )}
+              <span className="font-semibold">{likesCount}</span>
+            </button>
+
+            <button
+              onClick={() => setShowComments(!showComments)}
+              className="flex items-center gap-2 px-4 py-2 rounded-xl hover:bg-primary/10 text-text-muted hover:text-primary transition-all duration-200 group"
+            >
+              <FaComment className="w-4 h-4 group-hover:scale-110 transition-transform" />
+              <span className="font-semibold">{commentsCount}</span>
             </button>
           </div>
 
