@@ -1,53 +1,28 @@
-import React, { useEffect, useRef, useState, useMemo } from 'react';
+import { useRef, useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { FaHeart, FaRegHeart, FaComment, FaRetweet, FaShare } from 'react-icons/fa';
+import { formatDistanceToNow } from 'date-fns';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { useAuth } from '../../context/AuthContext';
+import axios from '../../api/axios';
+import { getImageUrl } from '../../utils/imageUtils';
 
 gsap.registerPlugin(ScrollTrigger);
 
-// Random gradient backgrounds for tweet cards
-const cardColors = [
-  'from-purple-500/10 to-pink-500/10',
-  'from-blue-500/10 to-cyan-500/10',
-  'from-green-500/10 to-emerald-500/10',
-  'from-orange-500/10 to-red-500/10',
-  'from-indigo-500/10 to-purple-500/10',
-  'from-rose-500/10 to-pink-500/10',
-  'from-teal-500/10 to-green-500/10',
-  'from-yellow-500/10 to-orange-500/10',
-  'from-violet-500/10 to-purple-500/10',
-];
-
-// Colored backgrounds for profile names
-const nameColors = [
-  'bg-gradient-to-r from-purple-500/20 to-pink-500/20',
-  'bg-gradient-to-r from-blue-500/20 to-cyan-500/20',
-  'bg-gradient-to-r from-green-500/20 to-emerald-500/20',
-  'bg-gradient-to-r from-orange-500/20 to-red-500/20',
-  'bg-gradient-to-r from-indigo-500/20 to-purple-500/20',
-];
-
-// Get consistent color for username
-const getNameColor = (username) => {
-  const hash = (username || '').split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-  return nameColors[hash % nameColors.length];
-};
-
-function AnimatedTweetCard({ tweet, onLike, onComment }) {
+export default function AnimatedTweetCard({ tweet, onUpdate }) {
   const cardRef = useRef(null);
-  const [particles, setParticles] = useState([]);
-  const [isLiked, setIsLiked] = useState(false);
-
-  // Select random color for this tweet card
-  const randomCardColor = useMemo(() => {
-    return cardColors[Math.floor(Math.random() * cardColors.length)];
-  }, []);
+  const { user } = useAuth();
+  const [isLiked, setIsLiked] = useState(
+    tweet.likes?.some(like => like.userId === user?.id) || false
+  );
+  const [likesCount, setLikesCount] = useState(tweet.likes?.length || 0);
 
   useEffect(() => {
-    if (!cardRef.current) return;
-
     const card = cardRef.current;
+    if (!card) return;
 
-    // GSAP ScrollTrigger animation
+    // Scroll trigger animation
     gsap.fromTo(
       card,
       {
@@ -61,21 +36,21 @@ function AnimatedTweetCard({ tweet, onLike, onComment }) {
         y: 0,
         rotateX: 0,
         scale: 1,
-        duration: 0.8,
+        duration: 0.6,
         ease: 'power3.out',
         scrollTrigger: {
           trigger: card,
-          start: 'top 85%',
-          end: 'top 65%',
+          start: 'top bottom-=100',
           toggleActions: 'play none none reverse',
         },
       }
     );
 
-    // Glowing hover effect
+    // Hover animation with GLOW
     const handleMouseEnter = () => {
       gsap.to(card, {
-        scale: 1.02,
+        scale: 1.01,
+        boxShadow: '0 10px 30px rgba(99, 102, 241, 0.25), 0 0 20px rgba(139, 92, 246, 0.15)',
         duration: 0.3,
         ease: 'power2.out',
       });
@@ -84,6 +59,7 @@ function AnimatedTweetCard({ tweet, onLike, onComment }) {
     const handleMouseLeave = () => {
       gsap.to(card, {
         scale: 1,
+        boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
         duration: 0.3,
         ease: 'power2.out',
       });
@@ -95,171 +71,212 @@ function AnimatedTweetCard({ tweet, onLike, onComment }) {
     return () => {
       card.removeEventListener('mouseenter', handleMouseEnter);
       card.removeEventListener('mouseleave', handleMouseLeave);
+      ScrollTrigger.getAll().forEach(trigger => trigger.kill());
     };
   }, []);
 
-  const handleLikeClick = () => {
-    setIsLiked(!isLiked);
+  const handleLike = async () => {
+    try {
+      const response = await axios.post(`/api/tweets/${tweet.id}/like`);
+      setIsLiked(response.data.liked);
+      setLikesCount(response.data.likesCount);
 
-    // Create particle burst
-    const newParticles = [];
+      // Particle burst animation
+      createParticleBurst(cardRef.current);
+
+      if (onUpdate) {
+        onUpdate();
+      }
+    } catch (error) {
+      console.error('Error liking tweet:', error);
+    }
+  };
+
+  const createParticleBurst = (element) => {
+    const rect = element.getBoundingClientRect();
     const particleCount = 12;
 
     for (let i = 0; i < particleCount; i++) {
-      const angle = (Math.PI * 2 * i) / particleCount;
-      const velocity = 3 + Math.random() * 2;
+      const particle = document.createElement('div');
+      particle.className = 'particle-burst';
+      particle.style.cssText = `
+        position: fixed;
+        width: 8px;
+        height: 8px;
+        background: linear-gradient(135deg, #ec4899, #8b5cf6);
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 9999;
+        left: ${rect.left + rect.width / 2}px;
+        top: ${rect.top + rect.height / 2}px;
+      `;
+      document.body.appendChild(particle);
 
-      newParticles.push({
-        id: Date.now() + i,
-        x: 0,
-        y: 0,
-        vx: Math.cos(angle) * velocity,
-        vy: Math.sin(angle) * velocity,
-        life: 1,
+      const angle = (i / particleCount) * Math.PI * 2;
+      const distance = 100 + Math.random() * 50;
+      const x = Math.cos(angle) * distance;
+      const y = Math.sin(angle) * distance;
+
+      gsap.to(particle, {
+        x,
+        y,
+        opacity: 0,
+        scale: 0,
+        duration: 0.8 + Math.random() * 0.4,
+        ease: 'power2.out',
+        onComplete: () => particle.remove(),
       });
     }
+  };
 
-    setParticles(newParticles);
+  // Random background colors for each tweet
+  const cardColors = [
+    'from-purple-500/10 to-pink-500/10',
+    'from-blue-500/10 to-cyan-500/10',
+    'from-green-500/10 to-emerald-500/10',
+    'from-orange-500/10 to-red-500/10',
+    'from-indigo-500/10 to-purple-500/10',
+    'from-rose-500/10 to-pink-500/10',
+    'from-teal-500/10 to-green-500/10',
+    'from-yellow-500/10 to-orange-500/10',
+    'from-violet-500/10 to-purple-500/10',
+  ];
 
-    // Animate particles
-    const interval = setInterval(() => {
-      setParticles(prev => {
-        const updated = prev.map(p => ({
-          ...p,
-          x: p.x + p.vx,
-          y: p.y + p.vy,
-          vy: p.vy + 0.2, // gravity
-          life: p.life - 0.02,
-        })).filter(p => p.life > 0);
+  const randomColor = cardColors[Math.floor(Math.random() * cardColors.length)];
 
-        if (updated.length === 0) {
-          clearInterval(interval);
-        }
+  // Colored backgrounds for profile names (consistent per user)
+  const nameColors = [
+    'bg-gradient-to-r from-purple-500/20 to-pink-500/20',
+    'bg-gradient-to-r from-blue-500/20 to-cyan-500/20',
+    'bg-gradient-to-r from-green-500/20 to-emerald-500/20',
+    'bg-gradient-to-r from-orange-500/20 to-red-500/20',
+    'bg-gradient-to-r from-indigo-500/20 to-purple-500/20',
+    'bg-gradient-to-r from-rose-500/20 to-pink-500/20',
+    'bg-gradient-to-r from-teal-500/20 to-green-500/20',
+  ];
 
-        return updated;
-      });
-    }, 16); // 60 FPS
+  // Profile photo placeholder gradients
+  const avatarGradients = [
+    'from-indigo-500 to-purple-500',
+    'from-blue-500 to-cyan-500',
+    'from-green-500 to-emerald-500',
+    'from-orange-500 to-red-500',
+    'from-pink-500 to-rose-500',
+    'from-violet-500 to-purple-500',
+    'from-teal-500 to-blue-500',
+    'from-yellow-500 to-orange-500',
+    'from-fuchsia-500 to-pink-500',
+  ];
 
-    if (onLike) onLike(tweet.id);
+  const getNameColor = (username) => {
+    if (!username) return nameColors[0];
+    const hash = username.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    return nameColors[hash % nameColors.length];
+  };
+
+  const getAvatarGradient = (username) => {
+    if (!username) return avatarGradients[0];
+    const hash = username.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    return avatarGradients[hash % avatarGradients.length];
+  };
+
+  // Get initials from full name (first and last name)
+  const getInitials = (fullName, username) => {
+    if (fullName) {
+      const names = fullName.trim().split(' ');
+      if (names.length >= 2) {
+        // Get first letter of first name and first letter of last name
+        return (names[0][0] + names[names.length - 1][0]).toUpperCase();
+      } else if (names.length === 1) {
+        // If only one name, use first two letters
+        return names[0].substring(0, 2).toUpperCase();
+      }
+    }
+    // Fallback to username first letter
+    return username?.[0]?.toUpperCase() || 'U';
   };
 
   return (
     <div
       ref={cardRef}
-      className={`relative bg-gradient-to-br ${randomCardColor} backdrop-blur-xl rounded-2xl p-6 mb-4 border border-white/10 transition-all duration-300 tweet-card-glow`}
-      style={{
-        perspective: '1000px',
-        transformStyle: 'preserve-3d',
-        boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
-      }}
+      className={`bg-gradient-to-br ${randomColor} backdrop-blur-xl rounded-2xl p-6 mb-4 border border-white/10 shadow-lg hover:shadow-2xl transition-all duration-300`}
+      style={{ perspective: '1000px' }}
     >
-      {/* Particle burst container */}
-      <div className="absolute top-1/2 left-1/2 pointer-events-none" style={{ zIndex: 100 }}>
-        {particles.map(particle => (
-          <div
-            key={particle.id}
-            className="absolute w-2 h-2 bg-pink-500 rounded-full"
-            style={{
-              transform: `translate(${particle.x}px, ${particle.y}px)`,
-              opacity: particle.life,
-              transition: 'none',
-            }}
-          />
-        ))}
-      </div>
+      <div className="flex items-start space-x-4">
+        <Link to={`/profile/${tweet.user?.username}`} className="group">
+          {tweet.user?.profilePicture ? (
+            <img
+              src={getImageUrl(tweet.user.profilePicture)}
+              alt={tweet.user?.username}
+              className="w-12 h-12 rounded-full ring-2 ring-primary/50 hover:ring-primary transition-all duration-300 transform hover:scale-110 group-hover:shadow-[0_0_30px_rgba(99,102,241,0.6)]"
+            />
+          ) : (
+            <div className={`w-12 h-12 rounded-full bg-gradient-to-br ${getAvatarGradient(tweet.user?.username)} flex items-center justify-center text-white font-bold text-sm ring-2 ring-primary/50 hover:ring-primary transition-all duration-300 transform hover:scale-110 group-hover:shadow-[0_0_30px_rgba(99,102,241,0.6)]`}>
+              {getInitials(tweet.user?.fullName, tweet.user?.username)}
+            </div>
+          )}
+        </Link>
 
-      {/* User info */}
-      <div className="flex items-start gap-3 mb-4">
-        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white font-bold text-lg ring-2 ring-primary/50 hover:ring-primary transition-all duration-300 transform hover:scale-110 hover:shadow-[0_0_30px_rgba(99,102,241,0.6)] group cursor-pointer">
-          {tweet.user?.username?.[0]?.toUpperCase() || 'U'}
-        </div>
         <div className="flex-1">
-          <span className={`${getNameColor(tweet.user?.username)} px-3 py-1 rounded-full font-bold inline-block profile-name-glow cursor-pointer text-text-primary hover:text-primary transition-colors relative group`}>
-            {tweet.user?.fullName || 'User'}
-            <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-primary to-secondary group-hover:w-full transition-all duration-300"
-              style={{ boxShadow: '0 0 10px rgba(99, 102, 241, 0.8)' }}
+          <div className="flex items-center space-x-2 mb-2">
+            <Link
+              to={`/profile/${tweet.user?.username}`}
+              className="relative group"
+            >
+              <span className={`${getNameColor(tweet.user?.username)} px-3 py-1 rounded-full font-bold text-text-primary transition-all duration-300 profile-name-glow`}>
+                {tweet.user?.fullName || tweet.user?.username}
+              </span>
+              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-primary to-secondary group-hover:w-full transition-all duration-300 shadow-[0_0_10px_rgba(99,102,241,0.8)]" />
+            </Link>
+            <span className="text-text-muted text-sm">
+              @{tweet.user?.username}
+            </span>
+            <span className="text-text-subtle text-sm">·</span>
+            <span className="text-text-subtle text-sm">
+              {formatDistanceToNow(new Date(tweet.createdAt), { addSuffix: true })}
+            </span>
+          </div>
+
+          <p className="text-white mb-4 leading-relaxed font-medium">{tweet.text}</p>
+
+          {tweet.image && (
+            <img
+              src={getImageUrl(tweet.image)}
+              alt="Tweet"
+              className="rounded-xl w-full mb-4 max-h-96 object-cover transform transition-transform duration-300 hover:scale-[1.02]"
             />
-          </span>
-          <p className="text-sm text-gray-400 mt-1">@{tweet.user?.username || 'username'}</p>
+          )}
+
+          <div className="flex items-center space-x-8 text-gray-400">
+            <button
+              onClick={handleLike}
+              className="flex items-center space-x-2 hover:text-pink-500 transition-all duration-300 group transform hover:scale-110"
+            >
+              {isLiked ? (
+                <FaHeart className="text-pink-500 animate-pulse" />
+              ) : (
+                <FaRegHeart className="group-hover:scale-125 transition-transform" />
+              )}
+              <span className="text-sm font-medium">{likesCount}</span>
+            </button>
+
+            <button className="flex items-center space-x-2 hover:text-blue-500 transition-all duration-300 group transform hover:scale-110">
+              <FaComment className="group-hover:scale-125 transition-transform" />
+              <span className="text-sm font-medium">
+                {tweet.comments?.length || 0}
+              </span>
+            </button>
+
+            <button className="flex items-center space-x-2 hover:text-green-500 transition-all duration-300 group transform hover:scale-110">
+              <FaRetweet className="group-hover:rotate-180 transition-transform duration-500" />
+            </button>
+
+            <button className="flex items-center space-x-2 hover:text-primary transition-all duration-300 group transform hover:scale-110">
+              <FaShare className="group-hover:translate-x-1 transition-transform" />
+            </button>
+          </div>
         </div>
-      </div>
-
-      {/* Tweet content */}
-      <p className="text-gray-200 mb-4 leading-relaxed">{tweet.content}</p>
-
-      {/* Tweet image */}
-      {tweet.image && (
-        <div className="mb-4 rounded-xl overflow-hidden">
-          <img
-            src={tweet.image}
-            alt="Tweet"
-            className="w-full h-auto object-cover"
-          />
-        </div>
-      )}
-
-      {/* Actions */}
-      <div className="flex items-center gap-6 pt-3 border-t border-gray-700/50">
-        <button
-          onClick={handleLikeClick}
-          className="flex items-center gap-2 text-gray-400 hover:text-pink-500 transition-colors relative"
-        >
-          <svg
-            className={`w-5 h-5 transition-transform ${isLiked ? 'scale-125 fill-pink-500 text-pink-500' : ''}`}
-            fill={isLiked ? 'currentColor' : 'none'}
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-            />
-          </svg>
-          <span className={isLiked ? 'text-pink-500 font-semibold' : ''}>
-            {(tweet.likes?.length || 0) + (isLiked ? 1 : 0)}
-          </span>
-        </button>
-
-        <button
-          onClick={() => onComment && onComment(tweet.id)}
-          className="flex items-center gap-2 text-gray-400 hover:text-indigo-500 transition-colors"
-        >
-          <svg
-            className="w-5 h-5"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
-            />
-          </svg>
-          <span>{tweet.comments?.length || 0}</span>
-        </button>
-
-        <button className="flex items-center gap-2 text-gray-400 hover:text-green-500 transition-colors ml-auto">
-          <svg
-            className="w-5 h-5"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
-            />
-          </svg>
-        </button>
       </div>
     </div>
   );
 }
-
-export default AnimatedTweetCard;

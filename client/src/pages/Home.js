@@ -9,7 +9,6 @@ import ParticleWave from '../components/3d/ParticleWave';
 import AnimatedTweetCard from '../components/animations/AnimatedTweetCard';
 import PageTransition from '../components/animations/PageTransition';
 import TextReveal from '../components/animations/TextReveal';
-import { mockTweets } from '../utils/mockData';
 
 const Home = () => {
   const [tweets, setTweets] = useState([]);
@@ -23,14 +22,9 @@ const Home = () => {
   const fetchTweets = async () => {
     try {
       setLoading(true);
-      // Using mock data for testing animations
-      // const endpoint = activeTab === 'feed' ? '/api/tweets/feed' : '/api/tweets/latest';
-      // const response = await api.get(endpoint);
-      // setTweets(response.data.data.tweets);
-
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 500));
-      setTweets(mockTweets);
+      const endpoint = activeTab === 'feed' ? '/api/tweets/feed' : '/api/tweets/latest';
+      const response = await api.get(endpoint);
+      setTweets(response.data.data.tweets);
     } catch (error) {
       console.error('Error fetching tweets:', error);
     } finally {
@@ -111,6 +105,7 @@ const Home = () => {
                       <AnimatedTweetCard
                         key={tweet.id}
                         tweet={tweet}
+                        onUpdate={fetchTweets}
                       />
                     ))}
                   </div>
