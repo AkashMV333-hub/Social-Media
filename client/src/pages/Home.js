@@ -106,6 +106,7 @@ const Home = () => {
                         key={tweet.id}
                         tweet={tweet}
                         onUpdate={fetchTweets}
+                        index={index}
                       />
                     ))}
                   </div>

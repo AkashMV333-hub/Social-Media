@@ -10,13 +10,31 @@ import { getImageUrl } from '../../utils/imageUtils';
 
 gsap.registerPlugin(ScrollTrigger);
 
-export default function AnimatedTweetCard({ tweet, onUpdate }) {
+export default function AnimatedTweetCard({ tweet, onUpdate, index = 0 }) {
   const cardRef = useRef(null);
   const { user } = useAuth();
   const [isLiked, setIsLiked] = useState(
     tweet.likes?.some(like => like.userId === user?.id) || false
   );
   const [likesCount, setLikesCount] = useState(tweet.likes?.length || 0);
+
+  // Background colors for text-only posts
+  const textPostColors = ['#BF937C', '#4F3A35', '#2F6755', '#98A69A','#AC7E6E', '#C9ADA7', '#82BAC4', '#725444', '#82BAC4'];
+  const backgroundColor = !tweet.image ? textPostColors[index % textPostColors.length] : 'transparent';
+
+  // Dynamic font size based on text length
+  const getDynamicFontSize = (text) => {
+    if (!text) return 'text-lg';
+    const length = text.length;
+    if (length <= 10) return 'text-9xl';
+    if (length <= 20) return 'text-7xl';
+    if (length <= 50) return 'text-5xl';
+    if (length <= 100) return 'text-4xl';
+    if (length <= 150) return 'text-3xl';
+    if (length <= 200) return 'text-2xl';
+    if (length <= 300) return 'text-xl';
+    return 'text-lg';
+  };
 
   useEffect(() => {
     const card = cardRef.current;
@@ -203,16 +221,16 @@ export default function AnimatedTweetCard({ tweet, onUpdate }) {
       style={{ perspective: '1000px' }}
     >
       <div className="flex items-start space-x-4">
-        <Link to={`/profile/${tweet.user?.username}`} className="group">
-          {tweet.user?.profilePicture ? (
+        <Link to={`/profile/${tweet.author?.username}`} className="group">
+          {tweet.author?.profilePicture ? (
             <img
-              src={getImageUrl(tweet.user.profilePicture)}
-              alt={tweet.user?.username}
+              src={getImageUrl(tweet.author.profilePicture)}
+              alt={tweet.author?.username}
               className="w-12 h-12 rounded-full ring-2 ring-primary/50 hover:ring-primary transition-all duration-300 transform hover:scale-110 group-hover:shadow-[0_0_30px_rgba(99,102,241,0.6)]"
             />
           ) : (
-            <div className={`w-12 h-12 rounded-full bg-gradient-to-br ${getAvatarGradient(tweet.user?.username)} flex items-center justify-center text-white font-bold text-sm ring-2 ring-primary/50 hover:ring-primary transition-all duration-300 transform hover:scale-110 group-hover:shadow-[0_0_30px_rgba(99,102,241,0.6)]`}>
-              {getInitials(tweet.user?.fullName, tweet.user?.username)}
+            <div className={`w-12 h-12 rounded-full bg-gradient-to-br ${getAvatarGradient(tweet.author?.username)} flex items-center justify-center text-white font-bold text-sm ring-2 ring-primary/50 hover:ring-primary transition-all duration-300 transform hover:scale-110 group-hover:shadow-[0_0_30px_rgba(99,102,241,0.6)]`}>
+              {getInitials(tweet.author?.name, tweet.author?.username)}
             </div>
           )}
         </Link>
@@ -220,16 +238,16 @@ export default function AnimatedTweetCard({ tweet, onUpdate }) {
         <div className="flex-1">
           <div className="flex items-center space-x-2 mb-2">
             <Link
-              to={`/profile/${tweet.user?.username}`}
+              to={`/profile/${tweet.author?.username}`}
               className="relative group"
             >
-              <span className={`${getNameColor(tweet.user?.username)} px-3 py-1 rounded-full font-bold text-text-primary transition-all duration-300 profile-name-glow`}>
-                {tweet.user?.fullName || tweet.user?.username}
+              <span className={`${getNameColor(tweet.author?.username)} px-3 py-1 rounded-full font-bold text-text-primary transition-all duration-300 profile-name-glow`}>
+                {tweet.author?.name || tweet.author?.username}
               </span>
               <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-primary to-secondary group-hover:w-full transition-all duration-300 shadow-[0_0_10px_rgba(99,102,241,0.8)]" />
             </Link>
             <span className="text-text-muted text-sm">
-              @{tweet.user?.username}
+              @{tweet.author?.username}
             </span>
             <span className="text-text-subtle text-sm">·</span>
             <span className="text-text-subtle text-sm">
@@ -237,14 +255,29 @@ export default function AnimatedTweetCard({ tweet, onUpdate }) {
             </span>
           </div>
 
-          <p className="text-white mb-4 leading-relaxed font-medium">{tweet.text}</p>
-
-          {tweet.image && (
-            <img
-              src={getImageUrl(tweet.image)}
-              alt="Tweet"
-              className="rounded-xl w-full mb-4 max-h-96 object-cover transform transition-transform duration-300 hover:scale-[1.02]"
-            />
+          {!tweet.image ? (
+            <div
+              className="mt-6 rounded-2xl w-full flex items-center justify-center p-8 shadow-card hover:shadow-card-hover transition-all duration-300 overflow-hidden relative group mb-6 "
+              style={{
+                backgroundColor,
+                minHeight: '24rem',
+                maxHeight: '24rem'
+              }}
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <p className={`relative text-white font-bold ${getDynamicFontSize(tweet.text)} leading-snug text-center break-words w-full drop-shadow-lg`}>
+                {tweet.text}
+              </p>
+            </div>
+          ) : (
+            <>
+              <p className="mt-4 text-white mb-4 leading-relaxed font-medium">{tweet.text}</p>
+              <img
+                src={getImageUrl(tweet.image)}
+                alt="Tweet"
+                className="rounded-xl w-full mb-4 max-h-96 object-cover transform transition-transform duration-300 hover:scale-[1.02]"
+              />
+            </>
           )}
 
           <div className="flex items-center space-x-8 text-gray-400">
