@@ -5,10 +5,14 @@ import api from '../../api/axios';
 import { FaCalendar, FaMapMarkerAlt, FaLink } from 'react-icons/fa';
 import { format } from 'date-fns';
 import { getImageUrl } from '../../utils/imageUtils';
+import Modal from '../common/Modal';
+import FollowersList from './FollowersList';
 
 const ProfileHeader = ({ user, onUpdate }) => {
   const { user: currentUser, updateUser } = useAuth();
   const [editing, setEditing] = useState(false);
+  const [showFollowersModal, setShowFollowersModal] = useState(false);
+  const [showFollowingModal, setShowFollowingModal] = useState(false);
   const [formData, setFormData] = useState({
     name: user.name,
     bio: user.bio,
@@ -192,11 +196,17 @@ const ProfileHeader = ({ user, onUpdate }) => {
             </div>
 
             <div className="flex gap-6 mt-3">
-              <div>
+              <div
+                onClick={() => setShowFollowingModal(true)}
+                className="cursor-pointer hover:underline transition-all duration-200"
+              >
                 <span className="font-bold text-spotify-text">{user.followingCount}</span>{' '}
                 <span className="text-spotify-text-gray">Following</span>
               </div>
-              <div>
+              <div
+                onClick={() => setShowFollowersModal(true)}
+                className="cursor-pointer hover:underline transition-all duration-200"
+              >
                 <span className="font-bold text-spotify-text">{user.followersCount}</span>{' '}
                 <span className="text-spotify-text-gray">Followers</span>
               </div>
@@ -204,6 +214,24 @@ const ProfileHeader = ({ user, onUpdate }) => {
           </>
         )}
       </div>
+
+      {/* Followers Modal */}
+      <Modal
+        isOpen={showFollowersModal}
+        onClose={() => setShowFollowersModal(false)}
+        title="Followers"
+      >
+        <FollowersList username={user.username} type="followers" />
+      </Modal>
+
+      {/* Following Modal */}
+      <Modal
+        isOpen={showFollowingModal}
+        onClose={() => setShowFollowingModal(false)}
+        title="Following"
+      >
+        <FollowersList username={user.username} type="following" />
+      </Modal>
     </div>
   );
 };

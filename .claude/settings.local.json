@@ -5,7 +5,12 @@
       "Bash(taskkill:*)",
       "Bash(dir:*)",
       "Bash(npm install:*)",
-      "Bash(mkdir:*)"
+      "Bash(mkdir:*)",
+      "Bash(cat:*)",
+      "Bash(npm run dev:*)",
+      "Bash(timeout /t 3)",
+      "Bash(nul)",
+      "Bash(npm start)"
     ],
     "deny": [],
     "ask": []
