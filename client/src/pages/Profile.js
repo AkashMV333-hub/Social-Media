@@ -66,7 +66,7 @@ const Profile = () => {
                   <button
                     className={`flex-1 py-3 px-6 font-semibold rounded-xl transition-all duration-200 ${
                       activeTab === 'tweets'
-                        ? 'bg-gradient-primary text-white shadow-glow-sm'
+                        ? 'bg-brand1 text-white shadow-glow-sm'
                         : 'text-text-muted hover:text-text-primary hover:bg-dark-700'
                     }`}
                     onClick={() => setActiveTab('tweets')}
@@ -76,7 +76,7 @@ const Profile = () => {
                   <button
                     className={`flex-1 py-3 px-6 font-semibold rounded-xl transition-all duration-200 ${
                       activeTab === 'media'
-                        ? 'bg-gradient-primary text-white shadow-glow-sm'
+                        ? 'bg-brand1 text-white shadow-glow-sm'
                         : 'text-text-muted hover:text-text-primary hover:bg-dark-700'
                     }`}
                     onClick={() => setActiveTab('media')}

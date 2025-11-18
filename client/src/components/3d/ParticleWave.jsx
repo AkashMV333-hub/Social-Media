@@ -23,12 +23,20 @@ function WaveParticles() {
         positions[index * 3 + 1] = 0;
         positions[index * 3 + 2] = (z - gridSize / 2) * gap;
 
-        // Rainbow colors
+        /* Rainbow colors
         const color = new THREE.Color();
         color.setHSL((x / gridSize + z / gridSize) / 2, 1.0, 0.6);
         colors[index * 3] = color.r;
         colors[index * 3 + 1] = color.g;
         colors[index * 3 + 2] = color.b;
+        */
+
+        const color = new THREE.Color(1, 1, 1); // pure white
+
+        colors[index * 3] = color.r;
+        colors[index * 3 + 1] = color.g;
+        colors[index * 3 + 2] = color.b;
+
 
         index++;
       }
@@ -82,7 +90,7 @@ function WaveParticles() {
         />
       </bufferGeometry>
       <pointsMaterial
-        size={0.09}
+        size={0.12}
         vertexColors
         transparent={false}
         sizeAttenuation={true}
@@ -93,8 +101,8 @@ function WaveParticles() {
 
 export default function ParticleWave() {
   return (
-    <div className="fixed inset-0 z-0 bg-black">
-      <Canvas camera={{ position: [0, 3, 30], fov: 75 }}>
+    <div className="fixed inset-0 z-0 bg-brand1">
+      <Canvas camera={{ position: [0, 3, 40], fov: 75 }}>
         <ambientLight intensity={3} />
         <pointLight position={[0, 10, 10]} intensity={10} color="#ffffff" />
         <pointLight position={[0, -10, 10]} intensity={10} color="#ffffff" />

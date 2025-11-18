@@ -53,68 +53,73 @@ const Home = () => {
               <Sidebar />
 
             <main className="flex-1 max-w-3xl">
-              <div className="bg-dark-800/80 backdrop-blur-xl rounded-2xl shadow-card overflow-hidden border border-dark-600">
-                <div className="border-b border-dark-600 bg-dark-800/50 backdrop-blur-xl">
-                  <div className="flex p-2 gap-2">
-                    <button
-                      className={`flex-1 py-3 px-6 font-semibold rounded-xl transition-all duration-200 ${
-                        activeTab === 'feed'
-                          ? 'bg-gradient-primary text-white shadow-glow-sm'
-                          : 'text-text-muted hover:text-text-primary hover:bg-dark-700'
-                      }`}
-                      onClick={() => setActiveTab('feed')}
-                    >
-                      For You
-                    </button>
-                    <button
-                      className={`flex-1 py-3 px-6 font-semibold rounded-xl transition-all duration-200 ${
-                        activeTab === 'latest'
-                          ? 'bg-gradient-primary text-white shadow-glow-sm'
-                          : 'text-text-muted hover:text-text-primary hover:bg-dark-700'
-                      }`}
-                      onClick={() => setActiveTab('latest')}
-                    >
-                      Discover
-                    </button>
-                  </div>
+              <div className="bg-brand2 backdrop-blur-xl rounded-2xl shadow-card overflow-hidden border border-dark-600">
+                <div className="border-b border-brand2 backdrop-blur-xl bg-brand2">
+              <div className="flex p-2 gap-2">
+                <button
+                  className={`flex-1 py-3 px-6 font-semibold rounded-xl transition-all duration-200 ${
+                    activeTab === 'feed'
+                      ? 'bg-brand1 text-brand2 shadow-glow-sm'
+                      : 'text-gray-600 hover:text-black hover:bg-brand2'
+                  }`}
+                  onClick={() => setActiveTab('feed')}
+                >
+                  For You
+                </button>
+
+                <button
+                  className={`flex-1 py-3 px-6 font-semibold rounded-xl transition-all duration-200 ${
+                    activeTab === 'latest'
+                      ? 'bg-brand1 text-brand2 shadow-glow-sm'
+                      : 'text-gray-600 hover:text-black hover:bg-brand2'
+                  }`}
+                  onClick={() => setActiveTab('latest')}
+                >
+                  Discover
+                </button>
+              </div>
+            </div>
+
+            <TweetComposer onTweetCreated={handleTweetCreated} />
+
+            {loading ? (
+              <div className="p-12 flex justify-center">
+                <LoadingSpinner />
+              </div>
+            ) : tweets.length === 0 ? (
+              <div className="p-16 text-center">
+                <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-brand2 flex items-center justify-center">
+                  <span className="text-5xl">📭</span>
                 </div>
 
-                <TweetComposer onTweetCreated={handleTweetCreated} />
+                <TextReveal className="text-xl font-bold text-gray-900 mb-2">
+                  {activeTab === 'feed' ? 'Nothing here yet' : 'No posts found'}
+                </TextReveal>
 
-                {loading ? (
-                  <div className="p-12 flex justify-center">
-                    <LoadingSpinner />
-                  </div>
-                ) : tweets.length === 0 ? (
-                  <div className="p-16 text-center">
-                    <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-primary/10 flex items-center justify-center">
-                      <span className="text-5xl">📭</span>
-                    </div>
-                    <TextReveal className="text-xl font-bold text-text-primary mb-2">
-                      {activeTab === 'feed' ? 'Nothing here yet' : 'No posts found'}
-                    </TextReveal>
-                    <p className="text-text-muted">
-                      {activeTab === 'feed'
-                        ? 'Follow users to see their posts in your feed'
-                        : 'Be the first to share something!'}
-                    </p>
-                  </div>
-                ) : (
-                  <div className="p-4 space-y-4">
-                    {tweets.map((tweet, index) => (
-                      <AnimatedTweetCard
-                        key={tweet.id}
-                        tweet={tweet}
-                        onUpdate={fetchTweets}
-                        index={index}
-                      />
-                    ))}
-                  </div>
-                )}
+                <p className="text-gray-500">
+                  {activeTab === 'feed'
+                    ? 'Follow users to see their posts in your feed'
+                    : 'Be the first to share something!'}
+                </p>
               </div>
+            ) : (
+              <div className="p-4 space-y-4">
+                {tweets.map((tweet, index) => (
+                  <AnimatedTweetCard
+                    key={tweet.id}
+                    tweet={tweet}
+                    onUpdate={fetchTweets}
+                    index={index}
+                  />
+                ))}
+              </div>
+            )}
+
+            </div>
             </main>
 
-            <aside className="hidden lg:block w-80">
+            <aside className="hidden lg:block w-80 ">
+
 
             </aside>
           </div>

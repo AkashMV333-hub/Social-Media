@@ -65,7 +65,7 @@ const TweetCard = ({ tweet, onDelete, index = 0 }) => {
       <div className="flex gap-4">
         <Link to={`/profile/${tweet.author.username}`} className="flex-shrink-0">
           <div className="relative group">
-            <div className="absolute inset-0 bg-gradient-primary rounded-full blur-md opacity-0 group-hover:opacity-60 transition-opacity duration-300"></div>
+            <div className="absolute inset-0 bg-brand1 rounded-full blur-md opacity-0 group-hover:opacity-60 transition-opacity duration-300"></div>
             <img
               src={getImageUrl(tweet.author.profilePicture)}
               alt={tweet.author.name}

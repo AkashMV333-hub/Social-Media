@@ -17,12 +17,7 @@ body {
   background: #000000;
   color: #f8fafc;
   min-height: 100vh;
-  cursor: none;
   overflow-x: hidden;
-}
-
-a, button, input, textarea, select, [role="button"] {
-  cursor: none !important;
 }
 
 /* Custom scrollbar - Modern style */

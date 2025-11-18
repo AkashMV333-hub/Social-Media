@@ -14,6 +14,26 @@ module.exports = {
         'accent': '#8b5cf6',
         'success': '#10b981',
 
+        'brandf1': '#14213d',   // dark copper / brick red
+        'brandf2': '#CADCFC',
+        'brand11': '#735DA5',   // dark copper / brick red
+        'brand12': '#D3C5E5',
+        'brandf9': '#330000',   // dark copper / brick red
+        'brandf10': ' #D09683',
+        'brandc': '#14213d',   // dark copper / brick red
+        'brandd': '#a1c181',
+        'brandf3': '#14213d',   // dark copper / brick red
+        'brandf4': '#ffd8be',
+        'brand1': '#481620',   // dark copper / brick red
+        'brand2': '#e7dfc6',
+        'brand3': '#7371fc',   // dark copper / brick red
+        'brand4': '#f5efff',
+        'brandf5': '#14213d',   // dark copper / brick red
+        'brandf6': '#e7dfc6',
+        'brandf7': '#330000',   // dark copper / brick red
+        'brandf8': '#e7dfc6',
+
+
         // Dark theme base
         'dark-900': '#0a0a0f',
         'dark-800': '#13131a',
