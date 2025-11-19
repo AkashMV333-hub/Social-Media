@@ -1,3 +1,4 @@
+// WHITE THEME VERSION
 import { useRef, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { FaHeart, FaRegHeart, FaComment, FaRetweet, FaShare } from 'react-icons/fa';
@@ -18,21 +19,22 @@ export default function AnimatedTweetCard({ tweet, onUpdate, index = 0 }) {
   );
   const [likesCount, setLikesCount] = useState(tweet.likes?.length || 0);
 
-  // Background colors for text-only posts
-  const textPostColors = ['#BF937C', '#4F3A35', '#2F6755', '#98A69A','#AC7E6E', '#C9ADA7', '#82BAC4', '#725444', '#82BAC4'];
+  // Soft pastel backgrounds for text-only posts (white-theme friendly)
+  const textPostColors = [
+    '#FFEFEA', '#E8F6FF', '#EAF9F1', '#FFF6DA', '#F4EBFF',
+    '#FDECEE', '#E5F4FB', '#FFF2E5'
+  ];
   const backgroundColor = !tweet.image ? textPostColors[index % textPostColors.length] : 'transparent';
 
-  // Dynamic font size based on text length
   const getDynamicFontSize = (text) => {
     if (!text) return 'text-lg';
     const length = text.length;
-    if (length <= 10) return 'text-9xl';
-    if (length <= 20) return 'text-7xl';
-    if (length <= 50) return 'text-5xl';
-    if (length <= 100) return 'text-4xl';
-    if (length <= 150) return 'text-3xl';
-    if (length <= 200) return 'text-2xl';
-    if (length <= 300) return 'text-xl';
+    if (length <= 10) return 'text-8xl';
+    if (length <= 20) return 'text-6xl';
+    if (length <= 50) return 'text-4xl';
+    if (length <= 100) return 'text-3xl';
+    if (length <= 150) return 'text-2xl';
+    if (length <= 200) return 'text-xl';
     return 'text-lg';
   };
 
@@ -40,19 +42,12 @@ export default function AnimatedTweetCard({ tweet, onUpdate, index = 0 }) {
     const card = cardRef.current;
     if (!card) return;
 
-    // Scroll trigger animation
     gsap.fromTo(
       card,
-      {
-        opacity: 0,
-        y: 50,
-        rotateX: -15,
-        scale: 0.95,
-      },
+      { opacity: 0, y: 50, scale: 0.95 },
       {
         opacity: 1,
         y: 0,
-        rotateX: 0,
         scale: 1,
         duration: 0.6,
         ease: 'power3.out',
@@ -64,22 +59,19 @@ export default function AnimatedTweetCard({ tweet, onUpdate, index = 0 }) {
       }
     );
 
-    // Hover animation with GLOW
     const handleMouseEnter = () => {
       gsap.to(card, {
-        scale: 1.01,
-        boxShadow: '0 10px 30px rgba(99, 102, 241, 0.25), 0 0 20px rgba(139, 92, 246, 0.15)',
+        scale: 1.02,
+        boxShadow: '0 10px 25px rgba(0,0,0,0.08)',
         duration: 0.3,
-        ease: 'power2.out',
       });
     };
 
     const handleMouseLeave = () => {
       gsap.to(card, {
         scale: 1,
-        boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
+        boxShadow: '0 4px 15px rgba(0,0,0,0.05)',
         duration: 0.3,
-        ease: 'power2.out',
       });
     };
 
@@ -89,7 +81,7 @@ export default function AnimatedTweetCard({ tweet, onUpdate, index = 0 }) {
     return () => {
       card.removeEventListener('mouseenter', handleMouseEnter);
       card.removeEventListener('mouseleave', handleMouseLeave);
-      ScrollTrigger.getAll().forEach(trigger => trigger.kill());
+      ScrollTrigger.getAll().forEach(t => t.kill());
     };
   }, []);
 
@@ -99,217 +91,162 @@ export default function AnimatedTweetCard({ tweet, onUpdate, index = 0 }) {
       setIsLiked(response.data.liked);
       setLikesCount(response.data.likesCount);
 
-      // Particle burst animation
-      createParticleBurst(cardRef.current);
-
-      if (onUpdate) {
-        onUpdate();
-      }
+      if (onUpdate) onUpdate();
     } catch (error) {
       console.error('Error liking tweet:', error);
     }
   };
 
-  const createParticleBurst = (element) => {
-    const rect = element.getBoundingClientRect();
-    const particleCount = 12;
-
-    for (let i = 0; i < particleCount; i++) {
-      const particle = document.createElement('div');
-      particle.className = 'particle-burst';
-      particle.style.cssText = `
-        position: fixed;
-        width: 8px;
-        height: 8px;
-        background: linear-gradient(135deg, #ec4899, #8b5cf6);
-        border-radius: 50%;
-        pointer-events: none;
-        z-index: 9999;
-        left: ${rect.left + rect.width / 2}px;
-        top: ${rect.top + rect.height / 2}px;
-      `;
-      document.body.appendChild(particle);
-
-      const angle = (i / particleCount) * Math.PI * 2;
-      const distance = 100 + Math.random() * 50;
-      const x = Math.cos(angle) * distance;
-      const y = Math.sin(angle) * distance;
-
-      gsap.to(particle, {
-        x,
-        y,
-        opacity: 0,
-        scale: 0,
-        duration: 0.8 + Math.random() * 0.4,
-        ease: 'power2.out',
-        onComplete: () => particle.remove(),
-      });
-    }
-  };
-
-  // Random background colors for each tweet
+  // Card soft gradients
   const cardColors = [
-    'from-purple-500/10 to-pink-500/10',
-    'from-blue-500/10 to-cyan-500/10',
-    'from-green-500/10 to-emerald-500/10',
-    'from-orange-500/10 to-red-500/10',
-    'from-indigo-500/10 to-purple-500/10',
-    'from-rose-500/10 to-pink-500/10',
-    'from-teal-500/10 to-green-500/10',
-    'from-yellow-500/10 to-orange-500/10',
-    'from-violet-500/10 to-purple-500/10',
+    'from-white to-gray-50',
+    'from-gray-50 to-white',
+    'from-white to-gray-100',
+    'from-gray-100 to-white',
   ];
-
   const randomColor = cardColors[Math.floor(Math.random() * cardColors.length)];
 
-  // Colored backgrounds for profile names (consistent per user)
+  // Pastel name chips
   const nameColors = [
-    'bg-gradient-to-r from-purple-500/20 to-pink-500/20',
-    'bg-gradient-to-r from-blue-500/20 to-cyan-500/20',
-    'bg-gradient-to-r from-green-500/20 to-emerald-500/20',
-    'bg-gradient-to-r from-orange-500/20 to-red-500/20',
-    'bg-gradient-to-r from-indigo-500/20 to-purple-500/20',
-    'bg-gradient-to-r from-rose-500/20 to-pink-500/20',
-    'bg-gradient-to-r from-teal-500/20 to-green-500/20',
+    'bg-purple-100',
+    'bg-blue-100',
+    'bg-green-100',
+    'bg-yellow-100',
+    'bg-pink-100',
+    'bg-indigo-100',
+    'bg-orange-100',
   ];
 
-  // Profile photo placeholder gradients
   const avatarGradients = [
-    'from-indigo-500 to-purple-500',
-    'from-blue-500 to-cyan-500',
-    'from-green-500 to-emerald-500',
-    'from-orange-500 to-red-500',
-    'from-pink-500 to-rose-500',
-    'from-violet-500 to-purple-500',
-    'from-teal-500 to-blue-500',
-    'from-yellow-500 to-orange-500',
-    'from-fuchsia-500 to-pink-500',
+    'from-purple-300 to-pink-300',
+    'from-blue-300 to-cyan-300',
+    'from-green-300 to-emerald-300',
+    'from-yellow-300 to-orange-300',
+    'from-pink-300 to-rose-300',
   ];
 
   const getNameColor = (username) => {
     if (!username) return nameColors[0];
-    const hash = username.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    const hash = username.split('').reduce((a, c) => a + c.charCodeAt(0), 0);
     return nameColors[hash % nameColors.length];
   };
 
   const getAvatarGradient = (username) => {
     if (!username) return avatarGradients[0];
-    const hash = username.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    const hash = username.split('').reduce((a, c) => a + c.charCodeAt(0), 0);
     return avatarGradients[hash % avatarGradients.length];
   };
 
-  // Get initials from full name (first and last name)
   const getInitials = (fullName, username) => {
     if (fullName) {
-      const names = fullName.trim().split(' ');
-      if (names.length >= 2) {
-        // Get first letter of first name and first letter of last name
-        return (names[0][0] + names[names.length - 1][0]).toUpperCase();
-      } else if (names.length === 1) {
-        // If only one name, use first two letters
-        return names[0].substring(0, 2).toUpperCase();
-      }
+      const parts = fullName.split(' ');
+      if (parts.length >= 2) return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+      return parts[0].slice(0, 2).toUpperCase();
     }
-    // Fallback to username first letter
     return username?.[0]?.toUpperCase() || 'U';
   };
 
   return (
     <div
       ref={cardRef}
-      className={`bg-gradient-to-br ${randomColor} backdrop-blur-xl rounded-2xl p-6 mb-4 border border-white/10 shadow-lg hover:shadow-2xl transition-all duration-300`}
+      className={`bg-brand2 ${randomColor} rounded-2xl p-6 border border-brand2 shadow-sm`}
       style={{ perspective: '1000px' }}
     >
       <div className="flex items-start space-x-4">
-        <Link to={`/profile/${tweet.author?.username}`} className="group">
+        
+        {/* Avatar */}
+        <Link to={`/profile/${tweet.author?.username}`}>
           {tweet.author?.profilePicture ? (
             <img
               src={getImageUrl(tweet.author.profilePicture)}
               alt={tweet.author?.username}
-              className="w-12 h-12 rounded-full ring-2 ring-primary/50 hover:ring-primary transition-all duration-300 transform hover:scale-110 group-hover:shadow-[0_0_30px_rgba(99,102,241,0.6)]"
+              className="w-12 h-12 rounded-full border border-brand1 hover:scale-110 transition-all"
             />
           ) : (
-            <div className={`w-12 h-12 rounded-full bg-gradient-to-br ${getAvatarGradient(tweet.author?.username)} flex items-center justify-center text-white font-bold text-sm ring-2 ring-primary/50 hover:ring-primary transition-all duration-300 transform hover:scale-110 group-hover:shadow-[0_0_30px_rgba(99,102,241,0.6)]`}>
+            <div
+              className={`w-12 h-12 rounded-full bg-brand2 ${getAvatarGradient(
+                tweet.author?.username
+              )} flex items-center justify-center text-brand1 font-bold`}
+            >
               {getInitials(tweet.author?.name, tweet.author?.username)}
             </div>
           )}
         </Link>
 
+        {/* Right Side */}
         <div className="flex-1">
           <div className="flex items-center space-x-2 mb-2">
-            <Link
-              to={`/profile/${tweet.author?.username}`}
-              className="relative group"
-            >
-              <span className={`${getNameColor(tweet.author?.username)} px-3 py-1 rounded-full font-bold text-text-primary transition-all duration-300 profile-name-glow`}>
+            <Link to={`/profile/${tweet.author?.username}`}>
+              <span className={`bg-brand1 px-3 py-1 rounded-full font-semibold`}>
                 {tweet.author?.name || tweet.author?.username}
               </span>
-              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-primary to-secondary group-hover:w-full transition-all duration-300 shadow-[0_0_10px_rgba(99,102,241,0.8)]" />
             </Link>
-            <span className="text-text-muted text-sm">
-              @{tweet.author?.username}
-            </span>
-            <span className="text-text-subtle text-sm">·</span>
-            <span className="text-text-subtle text-sm">
+
+            <span className="text-brand1 text-sm">@{tweet.author?.username}</span>
+            <span className="text-brand1 text-sm">·</span>
+            <span className="text-brand1 text-sm">
               {formatDistanceToNow(new Date(tweet.createdAt), { addSuffix: true })}
             </span>
           </div>
 
+          {/* TEXT POST */}
           {!tweet.image ? (
             <div
-              className="mt-6 rounded-2xl w-full flex items-center justify-center p-8 shadow-card hover:shadow-card-hover transition-all duration-300 overflow-hidden relative group mb-6 "
+              className="mt-6 rounded-2xl w-full flex items-center justify-center p-8 shadow-inner transition-all mb-6"
               style={{
                 backgroundColor,
                 minHeight: '24rem',
                 maxHeight: '24rem'
               }}
             >
-              <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-              <p className={`relative text-white font-bold ${getDynamicFontSize(tweet.text)} leading-snug text-center break-words w-full drop-shadow-lg`}>
+              <p className={`text-gray-900 font-bold ${getDynamicFontSize(tweet.text)} text-center`}>
                 {tweet.text}
               </p>
             </div>
           ) : (
             <>
-              <p className="mt-4 text-white mb-4 leading-relaxed font-medium">{tweet.text}</p>
+              <p className="mt-4 text-gray-900 mb-4 leading-relaxed font-medium">
+                {tweet.text}
+              </p>
               <img
                 src={getImageUrl(tweet.image)}
                 alt="Tweet"
-                className="rounded-xl w-full mb-4 max-h-96 object-cover transform transition-transform duration-300 hover:scale-[1.02]"
+                className="rounded-xl w-full mb-4 max-h-96 object-cover hover:scale-[1.02] transition-transform"
               />
             </>
           )}
 
-          <div className="flex items-center space-x-8 text-gray-400">
+          {/* Actions */}
+          <div className="flex items-center space-x-8 text-brand1">
+            {/* Like */}
             <button
               onClick={handleLike}
-              className="flex items-center space-x-2 hover:text-pink-500 transition-all duration-300 group transform hover:scale-110"
+              className="flex items-center space-x-2 hover:text-red-500 transition transform hover:scale-110"
             >
-              {isLiked ? (
-                <FaHeart className="text-pink-500 animate-pulse" />
-              ) : (
-                <FaRegHeart className="group-hover:scale-125 transition-transform" />
-              )}
-              <span className="text-sm font-medium">{likesCount}</span>
+              {isLiked ? <FaHeart className="text-red-500" /> : <FaRegHeart />}
+              <span className="text-sm">{likesCount}</span>
             </button>
 
-            <button className="flex items-center space-x-2 hover:text-blue-500 transition-all duration-300 group transform hover:scale-110">
-              <FaComment className="group-hover:scale-125 transition-transform" />
-              <span className="text-sm font-medium">
-                {tweet.comments?.length || 0}
-              </span>
+            {/* Comment */}
+            <button className="flex items-center space-x-2 hover:text-blue-500 transition transform hover:scale-110">
+              <FaComment />
+              <span className="text-sm">{tweet.comments?.length || 0}</span>
             </button>
 
-            <button className="flex items-center space-x-2 hover:text-green-500 transition-all duration-300 group transform hover:scale-110">
-              <FaRetweet className="group-hover:rotate-180 transition-transform duration-500" />
+            {/* Retweet
+            <button className="flex items-center space-x-2 hover:text-green-500 transition transform hover:scale-110">
+              <FaRetweet />
             </button>
 
-            <button className="flex items-center space-x-2 hover:text-primary transition-all duration-300 group transform hover:scale-110">
-              <FaShare className="group-hover:translate-x-1 transition-transform" />
+             Share 
+            <button className="flex items-center space-x-2 hover:text-gray-800 transition transform hover:scale-110">
+              <FaShare />
             </button>
+            */}
           </div>
         </div>
       </div>
     </div>
   );
 }
+
