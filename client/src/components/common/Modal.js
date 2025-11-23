@@ -46,11 +46,11 @@ const Modal = ({ isOpen, onClose, title, children }) => {
               onClick={(e) => e.stopPropagation()}
             >
               {/* Header */}
-              <div className="flex items-center justify-between p-4 border-b border-spotify-gray">
-                <h2 className="text-xl font-bold text-spotify-text">{title}</h2>
+              <div className="flex items-center bg-brand2 lg:w-100 justify-between p-4 border-b border-spotify-gray">
+                <h2 className="text-xl font-bold text-brand1">{title}</h2>
                 <button
                   onClick={onClose}
-                  className="text-spotify-text-gray hover:text-spotify-text transition-colors p-2 hover:bg-spotify-gray rounded-full"
+                  className="text-brand1 hover:text-spotify-text transition-colors p-2 hover:bg-spotify-gray rounded-full"
                   aria-label="Close modal"
                 >
                   <svg

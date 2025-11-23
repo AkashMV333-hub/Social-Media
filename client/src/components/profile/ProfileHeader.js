@@ -5,14 +5,12 @@ import api from '../../api/axios';
 import { FaCalendar, FaMapMarkerAlt, FaLink } from 'react-icons/fa';
 import { format } from 'date-fns';
 import { getImageUrl } from '../../utils/imageUtils';
-import Modal from '../common/Modal';
-import FollowersList from './FollowersList';
 
-const ProfileHeader = ({ user, onUpdate }) => {
+// Aside content will be handled by parent Profile page
+const ProfileHeader = ({ user, onUpdate, onShowAside }) => {
   const { user: currentUser, updateUser } = useAuth();
   const [editing, setEditing] = useState(false);
-  const [showFollowersModal, setShowFollowersModal] = useState(false);
-  const [showFollowingModal, setShowFollowingModal] = useState(false);
+  // parent handler to show aside content in profile page
   const [formData, setFormData] = useState({
     name: user.name,
     bio: user.bio,
@@ -60,7 +58,7 @@ const ProfileHeader = ({ user, onUpdate }) => {
   return (
     <div className="bg-spotify-gray">
       {/* Cover Photo */}
-      <div className="h-48 bg-gradient-to-r from-spotify-light-gray to-spotify-gray relative">
+      <div className="h-48 bg-gradient-to-r from-brand2 to-brand1 relative">
         {user.coverPhoto && user.coverPhoto !== 'https://via.placeholder.com/600x200' && (
           <img
             src={getImageUrl(user.coverPhoto, 'cover')}
@@ -72,7 +70,7 @@ const ProfileHeader = ({ user, onUpdate }) => {
           />
         )}
         {isOwnProfile && (
-          <label className="absolute bottom-2 right-2 bg-spotify-light-gray hover:bg-spotify-green text-spotify-text rounded-full px-4 py-2 cursor-pointer transition-all duration-200">
+          <label className="absolute bottom-2 right-2 bg-brand2 hover:bg-brand1 hover:text-brand2 text-brand1 rounded-full px-4 py-2 cursor-pointer transition-all duration-200">
             <span className="text-sm font-semibold">Change Cover</span>
             <input
               type="file"
@@ -85,7 +83,7 @@ const ProfileHeader = ({ user, onUpdate }) => {
       </div>
 
       {/* Profile Info */}
-      <div className="px-4 pb-4 bg-spotify-gray">
+      <div className="px-4 pb-4 bg-brand1">
         <div className="flex justify-between items-start -mt-16">
           <div className="relative">
             <img
@@ -114,7 +112,7 @@ const ProfileHeader = ({ user, onUpdate }) => {
             {isOwnProfile ? (
               <button
                 onClick={() => setEditing(!editing)}
-                className="border border-spotify-border text-spotify-text px-6 py-2 rounded-full font-semibold hover:border-spotify-green hover:text-spotify-green transition-all duration-200"
+                className="border border-brand2 text-brand2 px-6 py-2 rounded-full font-semibold hover:border-white hover:text-white transition-all duration-200"
               >
                 {editing ? 'Cancel' : 'Edit Profile'}
               </button>
@@ -197,14 +195,14 @@ const ProfileHeader = ({ user, onUpdate }) => {
 
             <div className="flex gap-6 mt-3">
               <div
-                onClick={() => setShowFollowingModal(true)}
+                onClick={() => onShowAside && onShowAside({ type: 'following', username: user.username })}
                 className="cursor-pointer hover:underline transition-all duration-200"
               >
                 <span className="font-bold text-spotify-text">{user.followingCount}</span>{' '}
                 <span className="text-spotify-text-gray">Following</span>
               </div>
               <div
-                onClick={() => setShowFollowersModal(true)}
+                onClick={() => onShowAside && onShowAside({ type: 'followers', username: user.username })}
                 className="cursor-pointer hover:underline transition-all duration-200"
               >
                 <span className="font-bold text-spotify-text">{user.followersCount}</span>{' '}
@@ -215,23 +213,7 @@ const ProfileHeader = ({ user, onUpdate }) => {
         )}
       </div>
 
-      {/* Followers Modal */}
-      <Modal
-        isOpen={showFollowersModal}
-        onClose={() => setShowFollowersModal(false)}
-        title="Followers"
-      >
-        <FollowersList username={user.username} type="followers" />
-      </Modal>
-
-      {/* Following Modal */}
-      <Modal
-        isOpen={showFollowingModal}
-        onClose={() => setShowFollowingModal(false)}
-        title="Following"
-      >
-        <FollowersList username={user.username} type="following" />
-      </Modal>
+      {/* Followers/Following are shown in profile aside via parent handler */}
     </div>
   );
 };

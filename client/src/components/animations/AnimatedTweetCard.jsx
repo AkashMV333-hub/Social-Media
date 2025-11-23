@@ -1,23 +1,33 @@
 // WHITE THEME VERSION
 import { useRef, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { FaHeart, FaRegHeart, FaComment, FaRetweet, FaShare } from 'react-icons/fa';
+import { FaHeart, FaRegHeart, FaComment, FaRetweet, FaShare, FaTrash } from 'react-icons/fa';
 import { formatDistanceToNow } from 'date-fns';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useAuth } from '../../context/AuthContext';
 import axios from '../../api/axios';
 import { getImageUrl } from '../../utils/imageUtils';
+import CommentList from '../tweet/CommentList';
 
 gsap.registerPlugin(ScrollTrigger);
 
 export default function AnimatedTweetCard({ tweet, onUpdate, index = 0 }) {
   const cardRef = useRef(null);
   const { user } = useAuth();
+  // normalize id and counts so component works with both `id` and `_id` shapes
+  const tweetId = tweet.id || tweet._id;
+  const initialLikes = tweet.likes ?? (typeof tweet.likesCount !== 'undefined' ? null : null);
+  const initialLikesCount = Array.isArray(tweet.likes) ? tweet.likes.length : (tweet.likesCount ?? 0);
+  const initialCommentsCount = Array.isArray(tweet.comments) ? tweet.comments.length : (tweet.commentsCount ?? 0);
+
   const [isLiked, setIsLiked] = useState(
-    tweet.likes?.some(like => like.userId === user?.id) || false
+    // prefer explicit isLiked flag, otherwise check likes array for current user
+    tweet.isLiked ?? (Array.isArray(tweet.likes) ? tweet.likes.some(like => like.userId === user?.id) : false)
   );
-  const [likesCount, setLikesCount] = useState(tweet.likes?.length || 0);
+  const [likesCount, setLikesCount] = useState(initialLikesCount || 0);
+  const [showComments, setShowComments] = useState(false);
+  const [commentsCount, setCommentsCount] = useState(initialCommentsCount || 0);
 
   // Soft pastel backgrounds for text-only posts (white-theme friendly)
   const textPostColors = [
@@ -87,13 +97,26 @@ export default function AnimatedTweetCard({ tweet, onUpdate, index = 0 }) {
 
   const handleLike = async () => {
     try {
-      const response = await axios.post(`/api/tweets/${tweet.id}/like`);
+      // Toggle like via API. API returns { liked, likesCount }
+      // use normalized tweetId
+      const response = await axios.post(`/api/tweets/${tweetId}/like`);
       setIsLiked(response.data.liked);
       setLikesCount(response.data.likesCount);
 
       if (onUpdate) onUpdate();
     } catch (error) {
       console.error('Error liking tweet:', error);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!window.confirm('Are you sure you want to delete this tweet?')) return;
+
+    try {
+      await axios.delete(`/api/tweets/${tweetId}`);
+      if (onUpdate) onUpdate();
+    } catch (error) {
+      console.error('Error deleting tweet:', error);
     }
   };
 
@@ -159,7 +182,6 @@ export default function AnimatedTweetCard({ tweet, onUpdate, index = 0 }) {
           {tweet.author?.profilePicture ? (
             <img
               src={getImageUrl(tweet.author.profilePicture)}
-              alt={tweet.author?.username}
               className="w-12 h-12 rounded-full border border-brand1 hover:scale-110 transition-all"
             />
           ) : (
@@ -221,17 +243,31 @@ export default function AnimatedTweetCard({ tweet, onUpdate, index = 0 }) {
             {/* Like */}
             <button
               onClick={handleLike}
-              className="flex items-center space-x-2 hover:text-red-500 transition transform hover:scale-110"
+              className="flex items-center text-xl space-x-2 hover:text-red-500 transition transform hover:scale-110"
             >
               {isLiked ? <FaHeart className="text-red-500" /> : <FaRegHeart />}
               <span className="text-sm">{likesCount}</span>
             </button>
 
             {/* Comment */}
-            <button className="flex items-center space-x-2 hover:text-blue-500 transition transform hover:scale-110">
+            <button
+              onClick={() => setShowComments(!showComments)}
+              className="flex items-center text-xl space-x-2 hover:text-blue-500 transition transform hover:scale-110"
+            >
               <FaComment />
-              <span className="text-sm">{tweet.comments?.length || 0}</span>
+              <span className="text-sm">{commentsCount}</span>
             </button>
+
+            {/* Delete (if owner) */}
+            {user?._id === tweet.author?._id && (
+              <button
+                onClick={handleDelete}
+                className="text-text-muted hover:text-red-500 hover:bg-red-500/10 p-2 rounded-lg transition-all duration-200"
+                title="Delete post"
+              >
+                <FaTrash className="w-4 h-4" />
+              </button>
+            )}
 
             {/* Retweet
             <button className="flex items-center space-x-2 hover:text-green-500 transition transform hover:scale-110">
@@ -244,6 +280,14 @@ export default function AnimatedTweetCard({ tweet, onUpdate, index = 0 }) {
             </button>
             */}
           </div>
+          {showComments && (
+            <div className="mt-4">
+              <CommentList
+                tweetId={tweetId}
+                onCommentAdded={() => setCommentsCount(prev => prev + 1)}
+              />
+            </div>
+          )}
         </div>
       </div>
     </div>

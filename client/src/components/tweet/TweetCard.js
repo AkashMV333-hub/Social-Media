@@ -61,7 +61,7 @@ const TweetCard = ({ tweet, onDelete, index = 0 }) => {
   };
 
   return (
-    <div className="border-b border-dark-600 p-6 tweet-card backdrop-blur-sm rounded-lg mb-2">
+    <div className="bg-brand2 rounded-2xl p-6 border border-brand2 shadow-sm mb-4" >
       <div className="flex gap-4">
         <Link to={`/profile/${tweet.author.username}`} className="flex-shrink-0">
           <div className="relative group">
@@ -69,7 +69,7 @@ const TweetCard = ({ tweet, onDelete, index = 0 }) => {
             <img
               src={getImageUrl(tweet.author.profilePicture)}
               alt={tweet.author.name}
-              className="relative w-14 h-14 rounded-full object-cover ring-2 ring-dark-600 group-hover:ring-primary transition-all duration-300"
+              className="relative w-14 h-14 rounded-full object-cover ring-2 ring-brand1 group-hover:ring-primary transition-all duration-300"
               onError={(e) => {
                 e.target.onerror = null;
                 e.target.src = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(tweet.author.name) + '&background=6366f1&color=fff&size=150';
@@ -83,11 +83,11 @@ const TweetCard = ({ tweet, onDelete, index = 0 }) => {
             <div className="flex flex-col">
               <Link
                 to={`/profile/${tweet.author.username}`}
-                className="font-bold text-text-primary hover:text-primary transition-colors duration-200 text-lg"
+                className="font-bold text-brand1 hover:text-primary transition-colors duration-200 text-lg"
               >
                 {tweet.author.name}
               </Link>
-              <span className="text-text-muted text-sm">
+              <span className="text-brand1 text-sm">
                 @{tweet.author.username} · {formatDistanceToNow(new Date(tweet.createdAt), { addSuffix: true })}
               </span>
             </div>
@@ -95,7 +95,7 @@ const TweetCard = ({ tweet, onDelete, index = 0 }) => {
             {currentUser?._id === tweet.author._id && (
               <button
                 onClick={handleDelete}
-                className="text-text-muted hover:text-red-500 hover:bg-red-500/10 p-2 rounded-lg transition-all duration-200"
+                className="text-brand1 hover:text-red-500 hover:bg-red-500/10 p-2 rounded-lg transition-all duration-200"
                 title="Delete post"
               >
                 <FaTrash className="w-4 h-4" />
@@ -105,22 +105,21 @@ const TweetCard = ({ tweet, onDelete, index = 0 }) => {
 
           {!tweet.image ? (
             <div
-              className="mt-4 rounded-2xl w-full flex items-center justify-center p-8 shadow-card hover:shadow-card-hover transition-all duration-300 overflow-hidden relative group"
+              className="mt-4 rounded-2xl w-full flex items-center justify-center p-8 shadow-inner transition-all mb-6"
               style={{
                 backgroundColor,
                 minHeight: '24rem',
                 maxHeight: '24rem'
               }}
             >
-              <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-              <p className={`relative text-white font-bold ${getDynamicFontSize(tweet.text)} leading-snug text-center break-words w-full drop-shadow-lg`}>
+              <p className={`text-gray-900 font-bold ${getDynamicFontSize(tweet.text)} text-center`}>
                 {tweet.text}
               </p>
             </div>
           ) : (
             <>
-              <p className="mt-4 text-text-secondary text-base leading-relaxed">{tweet.text}</p>
-              <div className="mt-4 rounded-2xl overflow-hidden border border-dark-600 hover:border-primary/30 transition-all duration-300 shadow-card hover:shadow-card-hover group">
+              <p className="mt-4 text-gray-900 mb-4 leading-relaxed font-medium">{tweet.text}</p>
+              <div className="mt-4 rounded-2xl overflow-hidden border border-brand2 hover:border-primary/30 transition-all duration-300 shadow-card hover:shadow-card-hover group">
                 <img
                   src={getImageUrl(tweet.image)}
                   alt="Post image"
@@ -130,14 +129,14 @@ const TweetCard = ({ tweet, onDelete, index = 0 }) => {
             </>
           )}
 
-          <div className="flex items-center gap-2 mt-5">
+          <div className="flex items-center gap-2 mt-5 text-brand1">
 
             <button
               onClick={handleLike}
               className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all duration-200 group ${
                 liked
                   ? 'text-red-500 bg-red-500/10'
-                  : 'text-text-muted hover:text-red-500 hover:bg-red-500/10'
+                  : 'text-brand1 hover:text-red-500 hover:bg-red-500/10'
               }`}
             >
               {liked ? (
@@ -150,7 +149,7 @@ const TweetCard = ({ tweet, onDelete, index = 0 }) => {
 
             <button
               onClick={() => setShowComments(!showComments)}
-              className="flex items-center gap-2 px-4 py-2 rounded-xl hover:bg-primary/10 text-text-muted hover:text-primary transition-all duration-200 group"
+              className="flex items-center gap-2 px-4 py-2 rounded-xl hover:bg-primary/10 text-brand1 hover:text-primary transition-all duration-200 group"
             >
               <FaComment className="w-4 h-4 group-hover:scale-110 transition-transform" />
               <span className="font-semibold">{commentsCount}</span>

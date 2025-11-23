@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from '../../api/axios';
 import LoadingSpinner from '../common/LoadingSpinner';
 
-const FollowersList = ({ username, type = 'followers' }) => {
+const FollowersList = ({ username, type = 'followers', onUserClick }) => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -37,6 +37,7 @@ const FollowersList = ({ username, type = 'followers' }) => {
   }, [username, type]);
 
   const handleUserClick = (userUsername) => {
+    if (onUserClick) onUserClick(userUsername);
     navigate(`/profile/${userUsername}`);
   };
 
@@ -59,7 +60,7 @@ const FollowersList = ({ username, type = 'followers' }) => {
   if (users.length === 0) {
     return (
       <div className="p-6 text-center">
-        <p className="text-spotify-text-gray">
+        <p className="text-brand1">
           {type === 'followers'
             ? 'No followers yet'
             : 'Not following anyone yet'}
@@ -69,7 +70,7 @@ const FollowersList = ({ username, type = 'followers' }) => {
   }
 
   return (
-    <div className="divide-y bg-black divide-spotify-gray">
+    <div className="divide-y bg-brand1 divide-spotify-gray">
       {users.map((user) => (
         <div
           key={user._id}

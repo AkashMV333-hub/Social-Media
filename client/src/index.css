@@ -258,3 +258,12 @@ body {
 .profile-name-glow:hover {
   text-shadow: 0 0 20px rgba(99, 102, 241, 0.8);
 }
+
+/* Utility: hide native scrollbars but keep scrolling enabled */
+.hide-scrollbar {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+.hide-scrollbar::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
