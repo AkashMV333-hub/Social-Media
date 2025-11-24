@@ -102,8 +102,6 @@ export default function AnimatedTweetCard({ tweet, onUpdate, index = 0 }) {
       const response = await axios.post(`/api/tweets/${tweetId}/like`);
       setIsLiked(response.data.liked);
       setLikesCount(response.data.likesCount);
-
-      if (onUpdate) onUpdate();
     } catch (error) {
       console.error('Error liking tweet:', error);
     }

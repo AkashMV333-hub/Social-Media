@@ -105,7 +105,7 @@ const Home = () => {
             ) : (
               <div className="p-4 space-y-4">
                 {tweets.map((tweet, index) => (
-                  <AnimatedTweetCard
+                  <TweetCard
                     key={tweet.id}
                     tweet={tweet}
                     onUpdate={fetchTweets}

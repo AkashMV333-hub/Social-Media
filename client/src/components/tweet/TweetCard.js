@@ -112,7 +112,7 @@ const TweetCard = ({ tweet, onDelete, index = 0 }) => {
                 maxHeight: '24rem'
               }}
             >
-              <p className={`text-gray-900 font-bold ${getDynamicFontSize(tweet.text)} text-center`}>
+              <p className={`text-white font-bold ${getDynamicFontSize(tweet.text)} text-center`}>
                 {tweet.text}
               </p>
             </div>

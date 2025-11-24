@@ -6,6 +6,7 @@ import Sidebar from '../components/layout/Sidebar';
 import ProfileHeader from '../components/profile/ProfileHeader';
 import FollowersList from '../components/profile/FollowersList';
 import AnimatedTweetCard from '../components/animations/AnimatedTweetCard';
+import TweetCard from '../components/tweet/TweetCard';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 
 const Profile = () => {
@@ -103,7 +104,7 @@ const Profile = () => {
               ) : (
                 <div className="p-4 space-y-4">
                   {tweets.map((tweet, index) => (
-                    <AnimatedTweetCard
+                    <TweetCard
                       key={tweet._id}
                       tweet={{ ...tweet, id: tweet._id }}
                       onUpdate={fetchUserTweets}
