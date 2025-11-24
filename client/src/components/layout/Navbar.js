@@ -32,14 +32,6 @@ const Navbar = () => {
             </Link>
 
             <Link
-              to="/messages"
-              className="p-3 rounded-xl text-brand1 hover:text-brand1 hover:bg-primary/10 transition-all duration-200 group"
-              title="Messages"
-            >
-              <FaEnvelope className="w-5 h-5 group-hover:scale-110 transition-transform" />
-            </Link>
-
-            <Link
               to={`/profile/${user?.username}`}
               className="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-primary/10 transition-all duration-200 group"
             >
