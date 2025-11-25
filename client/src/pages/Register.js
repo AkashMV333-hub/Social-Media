@@ -141,6 +141,15 @@ const Register = () => {
 
           <div className="text-center">
             <Link
+              to="https://myaadhaar.uidai.gov.in/offline-ekyc"
+              className="font-medium text-brand2 hover:text-white transition-colors"
+            >
+              Don't have a Aadhaar .zip file? Download it here.
+            </Link>
+          </div>
+
+          <div className="text-center">
+            <Link
               to="/login"
               className="font-medium text-brand2 hover:text-white transition-colors"
             >
