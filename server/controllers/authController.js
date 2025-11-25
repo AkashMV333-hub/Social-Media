@@ -54,6 +54,37 @@ const register = async (req, res, next) => {
       return res.status(400).json({ success: false, message: 'Missing share code' });
     }
 
+    /*
+
+    // -----------------------------------------------------
+    // 🔥 SEND FILE + SHARECODE TO YOUR EXISTING /verify API
+    // -----------------------------------------------------
+    const formData = new FormData();
+    formData.append("file", fs.createReadStream(req.file.path));
+    formData.append("shareCode", shareCode);
+
+    const verifyRes = await fetch("http://localhost:3001/verify", {
+      method: "POST",
+      body: formData,
+    });
+
+    const verifyData = await verifyRes.json();
+
+    if (!verifyData.success) {
+      return res.status(400).json({
+        success: false,
+        message: "Aadhaar verification failed: " + verifyData.message,
+      });
+    }
+
+    // -----------------------------------------------------
+    // ✔ XML is valid, NOT tampered — you receive details here
+    // -----------------------------------------------------
+    const aadhaarData = verifyData.data; // whatever your /verify returns
+    console.log("Aadhaar Data from /verify:", aadhaarData);
+
+    */
+
     // Read uploaded file
     const fileData = fs.readFileSync(req.file.path);
     const blob = new Blob([fileData]);

@@ -59,7 +59,7 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-spotify-black py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center bg-brand1 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-spotify-text">
@@ -69,8 +69,8 @@ const Register = () => {
 
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           {error && (
-            <div className="rounded-md bg-red-900 bg-opacity-50 p-4 border border-red-700">
-              <p className="text-sm text-red-200">{error}</p>
+            <div className="rounded-md bg-blue-700 bg-opacity-50 p-4 border border-blue-700">
+              <p className="text-sm text-blue-700">{error}</p>
             </div>
           )}
 
@@ -85,7 +85,7 @@ const Register = () => {
                 name="file"
                 accept=".zip"
                 required
-                className="w-full px-4 py-3 bg-spotify-gray border border-spotify-border rounded-md text-spotify-text focus:outline-none focus:ring-2 focus:ring-spotify-green focus:border-transparent transition-colors"
+                className="w-full px-4 py-3 bg-brand2 border border-brand2 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-brand1 focus:border-transparent transition-colors"
                 onChange={handleFileChange}
               />
             </div>
@@ -95,7 +95,7 @@ const Register = () => {
               type="text"
               required
               placeholder="Username"
-              className="w-full px-4 py-3 bg-spotify-gray border border-spotify-border rounded-md text-spotify-text placeholder-spotify-text-subdued focus:outline-none focus:ring-2 focus:ring-spotify-green focus:border-transparent transition-colors"
+              className="w-full px-4 py-3 bg-brand2 border border-brand2 rounded-md text-black placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-brand1 focus:border-transparent transition-colors"
               value={formData.username}
               onChange={handleChange}
             />
@@ -105,7 +105,7 @@ const Register = () => {
               type="text"
               required
               placeholder="Aadhaar Share Code"
-              className="w-full px-4 py-3 bg-spotify-gray border border-spotify-border rounded-md text-spotify-text placeholder-spotify-text-subdued focus:outline-none focus:ring-2 focus:ring-spotify-green focus:border-transparent transition-colors"
+              className="w-full px-4 py-3 bg-brand2 border border-brand1 rounded-md text-black placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-brand1 focus:border-transparent transition-colors"
               value={formData.shareCode}
               onChange={handleChange}
             />
@@ -115,7 +115,7 @@ const Register = () => {
               type="text"
               required
               placeholder="Full Name / Display Name"
-              className="w-full px-4 py-3 bg-spotify-gray border border-spotify-border rounded-md text-spotify-text placeholder-spotify-text-subdued focus:outline-none focus:ring-2 focus:ring-spotify-green focus:border-transparent transition-colors"
+              className="w-full px-4 py-3 bg-brand2 border border-brand1 rounded-md text-black placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-brand1 focus:border-transparent transition-colors"
               value={formData.displayName}
               onChange={handleChange}
             />
@@ -125,7 +125,7 @@ const Register = () => {
               type="password"
               required
               placeholder="Password (min 6 characters)"
-              className="w-full px-4 py-3 bg-spotify-gray border border-spotify-border rounded-md text-spotify-text placeholder-spotify-text-subdued focus:outline-none focus:ring-2 focus:ring-spotify-green focus:border-transparent transition-colors"
+              className="w-full px-4 py-3 bg-brand2 border border-brand1 rounded-md text-black placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-brand1 focus:border-transparent transition-colors"
               value={formData.password}
               onChange={handleChange}
             />
@@ -134,7 +134,7 @@ const Register = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 px-4 border border-transparent text-sm font-bold rounded-full text-black bg-spotify-green hover:bg-green-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-spotify-green disabled:opacity-50 transition-all"
+            className="w-full py-3 px-4 border border-transparent text-sm font-bold rounded-full text-brand1 bg-brand2 hover:bg-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand1 disabled:opacity-50 transition-all"
           >
             {loading ? "Creating account..." : "Sign up"}
           </button>
@@ -142,7 +142,7 @@ const Register = () => {
           <div className="text-center">
             <Link
               to="/login"
-              className="font-medium text-spotify-green hover:text-green-400 transition-colors"
+              className="font-medium text-brand2 hover:text-white transition-colors"
             >
               Already have an account? Log in
             </Link>
