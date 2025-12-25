@@ -4,10 +4,10 @@ import api from '../api/axios';
 import Navbar from '../components/layout/Navbar';
 import Sidebar from '../components/layout/Sidebar';
 import ProfileHeader from '../components/profile/ProfileHeader';
-import FollowersList from '../components/profile/FollowersList';
-import AnimatedTweetCard from '../components/animations/AnimatedTweetCard';
 import TweetCard from '../components/tweet/TweetCard';
 import LoadingSpinner from '../components/common/LoadingSpinner';
+import FollowersList from '../components/profile/FollowersList';
+import AnimatedTweetCard from '../components/animations/AnimatedTweetCard';
 
 const Profile = () => {
   const { username } = useParams();
@@ -52,7 +52,6 @@ const Profile = () => {
   if (!user) {
     return <LoadingSpinner />;
   }
-
   return (
     <div className="min-h-screen bg-brand1">
       <Navbar />
@@ -103,14 +102,13 @@ const Profile = () => {
                 </div>
               ) : (
                 <div className="p-4 space-y-4">
-                  {tweets.map((tweet, index) => (
-                    <TweetCard
-                      key={tweet._id}
-                      tweet={{ ...tweet, id: tweet._id }}
-                      onUpdate={fetchUserTweets}
-                      index={index}
-                    />
-                  ))}
+                  {tweets.map((tweet) => (
+      <TweetCard
+        key={tweet._id}
+        tweet={{ ...tweet, id: tweet._id }}
+        onDelete={fetchUserTweets}
+      />
+    ))}
                 </div>
               )}
             </div>

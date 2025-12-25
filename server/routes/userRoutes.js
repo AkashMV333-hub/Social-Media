@@ -15,7 +15,7 @@ const { validateProfileUpdate } = require('../middleware/validation');
 
 // Profile routes
 router.get('/:username', optionalAuth, getUserProfile);
-router.get('/:username/tweets', getUserTweets);
+router.get('/:username/tweets',optionalAuth, getUserTweets);
 router.put('/profile', protect, validateProfileUpdate, updateProfile);
 
 // Image upload routes

@@ -64,19 +64,34 @@ const getUserTweets = async (req, res, next) => {
 
     let query = { author: user._id };
 
-    // Filter based on tab
     if (tab === 'media') {
       query.image = { $ne: null };
     }
-    // For 'tweets' tab, show all tweets
-    // For 'replies', would need to check if tweet is a reply (future enhancement)
 
-    const tweets = await Tweet.find(query)
-      .sort({ createdAt: -1 })
-      .limit(parseInt(limit))
-      .skip(parseInt(skip))
-      .populate('author', 'name username profilePicture');
+  let tweets = await Tweet.find(query)
+  .sort({ createdAt: -1 })
+  .limit(parseInt(limit))
+  .skip(parseInt(skip))
+  .populate('author', 'name username profilePicture')
+  .lean();
 
+  if (req.user) {
+    const tweetIds = tweets.map((t) => t._id);
+    const likedTweets = await Tweet.find({
+      _id: { $in: tweetIds },
+      likes: req.user._id,
+    }).select('_id');
+    const likedTweetIds = new Set(likedTweets.map((t) => t._id.toString()));
+    tweets = tweets.map((tweet) => ({
+      ...tweet,
+      isLiked: likedTweetIds.has(tweet._id.toString()),
+    }));
+  } else {
+    tweets = tweets.map((tweet) => ({
+      ...tweet,
+      isLiked: false,
+    }));
+  }
     const total = await Tweet.countDocuments(query);
 
     res.status(200).json({
@@ -95,7 +110,6 @@ const getUserTweets = async (req, res, next) => {
     next(error);
   }
 };
-
 /**
  * @desc    Update user profile
  * @route   PUT /api/users/profile

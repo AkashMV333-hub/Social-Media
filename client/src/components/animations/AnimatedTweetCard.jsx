@@ -211,18 +211,9 @@ export default function AnimatedTweetCard({ tweet, onUpdate, index = 0 }) {
 
           {/* TEXT POST */}
           {!tweet.image ? (
-            <div
-              className="mt-6 rounded-2xl w-full flex items-center justify-center p-8 shadow-inner transition-all mb-6"
-              style={{
-                backgroundColor,
-                minHeight: '24rem',
-                maxHeight: '24rem'
-              }}
-            >
-              <p className={`text-gray-900 font-bold ${getDynamicFontSize(tweet.text)} text-center`}>
-                {tweet.text}
-              </p>
-            </div>
+            <p className="mt-4 text-gray-900 leading-relaxed font-medium whitespace-pre-wrap">
+    {tweet.text}
+  </p>
           ) : (
             <>
               <p className="mt-4 text-gray-900 mb-4 leading-relaxed font-medium">
@@ -282,6 +273,7 @@ export default function AnimatedTweetCard({ tweet, onUpdate, index = 0 }) {
             <div className="mt-4">
               <CommentList
                 tweetId={tweetId}
+                tweetAuthorId={tweet.author?._id}
                 onCommentAdded={() => setCommentsCount(prev => prev + 1)}
               />
             </div>

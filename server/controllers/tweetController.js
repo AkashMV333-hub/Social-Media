@@ -174,6 +174,35 @@ const getLatestTweets = async (req, res, next) => {
 };
 
 /**
+ * @desc    Get users who liked a tweet
+ * @route   GET /api/tweets/:id/likes
+ * @access  Public (optional auth)
+ */
+const getTweetLikers = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const tweet = await Tweet.findById(id).populate('likes', 'name username profilePicture');
+
+    if (!tweet) {
+      return res.status(404).json({
+        success: false,
+        message: 'Post was not found',
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: {
+        likers: tweet.likes,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
  * @desc    Like a tweet
  * @route   POST /api/tweets/:id/like
  * @access  Private
@@ -204,14 +233,14 @@ const likeTweet = async (req, res, next) => {
     tweet.likesCount += 1;
     await tweet.save();
 
-    // Create notification for tweet author (if not liking own tweet)
+    // Create notification for post author (if not liking own post)
     if (tweet.author.toString() !== req.user._id.toString()) {
       await Notification.create({
         recipient: tweet.author,
         sender: req.user._id,
         type: 'like',
         tweet: tweet._id,
-        message: `${req.user.name} liked your tweet`,
+        message: `${req.user.name} liked your post`,
       });
     }
 
@@ -321,5 +350,6 @@ module.exports = {
   getLatestTweets,
   likeTweet,
   unlikeTweet,
+  getTweetLikers,
   deleteTweet,
 };

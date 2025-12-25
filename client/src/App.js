@@ -10,6 +10,8 @@ import Home from './pages/Home';
 import Profile from './pages/Profile';
 import Explore from './pages/Explore';
 import Notifications from './pages/Notifications';
+import TweetDetail from './pages/TweetDetail';
+import PostDeleted from './pages/PostDeleted';
 import Messages from './pages/Messages';
 
 function App() {
@@ -62,6 +64,22 @@ function App() {
             element={
               <ProtectedRoute>
                 <Notifications />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/tweet/:id"
+            element={
+              <ProtectedRoute>
+                <TweetDetail />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/post-deleted"
+            element={
+              <ProtectedRoute>
+                <PostDeleted />
               </ProtectedRoute>
             }
           />

@@ -4,6 +4,8 @@ import api from '../../api/axios';
 import { FaImage, FaTimes } from 'react-icons/fa';
 import { getImageUrl } from '../../utils/imageUtils';
 
+
+
 const TweetComposer = ({ onTweetCreated }) => {
   const { user } = useAuth();
   const [text, setText] = useState('');
@@ -42,7 +44,7 @@ const TweetComposer = ({ onTweetCreated }) => {
       const response = await api.post('/api/tweets', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
-
+    
       onTweetCreated(response.data.data.tweet);
       setText('');
       setImage(null);

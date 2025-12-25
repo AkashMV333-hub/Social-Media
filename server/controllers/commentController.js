@@ -10,7 +10,8 @@ const Notification = require('../models/Notification');
 const createComment = async (req, res, next) => {
   try {
     const { id } = req.params; // Tweet ID
-    const { text } = req.body;
+    const { text, parentCommentId, parentComment } = req.body;
+   
 
     // Check if tweet exists
     const tweet = await Tweet.findById(id);
@@ -22,20 +23,31 @@ const createComment = async (req, res, next) => {
     }
 
     // Create comment
+    let parent = null;
+    if (parentCommentId) {
+      parent = await Comment.findById(parentCommentId);
+      if (!parent || parent.tweet.toString() !== id) {
+        return res.status(400).json({ message: 'Invalid parent comment' });
+      }
+    }
     const comment = await Comment.create({
       tweet: id,
       author: req.user._id,
       text,
+      parentComment: parentComment || parentCommentId || null, // Save the parent comment
     });
 
     // Update tweet's comment count
-    tweet.commentsCount += 1;
-    await tweet.save();
+    // Only update tweet's comment count for top-level comments (not replies)
+if (!parentComment && !parentCommentId) {
+  tweet.commentsCount += 1;
+  await tweet.save();
+}
 
     // Populate author data
     await comment.populate('author', 'name username profilePicture');
 
-    // Create notification for tweet author (if not commenting on own tweet)
+    // Create notification for post author (if not commenting on own post)
     if (tweet.author.toString() !== req.user._id.toString()) {
       await Notification.create({
         recipient: tweet.author,
@@ -43,7 +55,7 @@ const createComment = async (req, res, next) => {
         type: 'comment',
         tweet: tweet._id,
         comment: comment._id,
-        message: `${req.user.name} commented on your tweet`,
+        message: `${req.user.name} commented on your post`,
       });
     }
 
@@ -89,6 +101,7 @@ const getComments = async (req, res, next) => {
     res.status(200).json({
       success: true,
       data: {
+        tweetAuthorId: tweet.author,
         comments,
         pagination: {
           total,
@@ -130,9 +143,12 @@ const deleteComment = async (req, res, next) => {
     }
 
     // Update tweet's comment count
-    await Tweet.findByIdAndUpdate(comment.tweet, {
-      $inc: { commentsCount: -1 },
-    });
+    // Only update tweet's comment count for top-level comments (not replies)
+if (!comment.parentComment) {
+  await Tweet.findByIdAndUpdate(comment.tweet, {
+    $inc: { commentsCount: -1 },
+  });
+}
 
     await comment.deleteOne();
 

@@ -3,6 +3,7 @@ const router = express.Router();
 const {
   createTweet,
   getTweetById,
+  getTweetLikers,
   getHomeFeed,
   getLatestTweets,
   likeTweet,
@@ -24,6 +25,8 @@ router.post(
 );
 router.get('/feed', protect, getHomeFeed);
 router.get('/latest', optionalAuth, getLatestTweets);
+// Get users who liked a tweet
+router.get('/:id/likes', optionalAuth, getTweetLikers);
 router.get('/:id', optionalAuth, getTweetById);
 router.delete('/:id', protect, deleteTweet);
 

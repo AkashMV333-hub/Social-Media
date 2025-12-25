@@ -2,9 +2,32 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { FaBell, FaEnvelope, FaSignOutAlt } from 'react-icons/fa';
 import { getImageUrl } from '../../utils/imageUtils';
+import { useEffect, useState } from 'react';
+import api from '../../api/axios';
 
 const Navbar = () => {
   const { user, logout } = useAuth();
+  // ADD HERE (unreadCount + useEffect code)
+  const [unreadCount, setUnreadCount] = useState(0);
+  useEffect(() => {
+    let cancelled = false;
+    const fetchUnreadCount = async () => {
+      try {
+        const res = await api.get('/api/notifications/unread-count');
+        const count = res.data?.data?.unreadCount ?? 0;
+        if (!cancelled) setUnreadCount(count);
+      } catch (e) {
+        if (!cancelled) setUnreadCount(0);
+      }
+    };
+    fetchUnreadCount();
+    // (This is the "2nd option": polling)
+    const intervalId = setInterval(fetchUnreadCount, 15000);
+    return () => {
+      cancelled = true;
+      clearInterval(intervalId);
+    };
+  }, []);
 
   return (
     <nav className="bg-brand2 backdrop-blur-xl border-b border-brand2 sticky top-0 z-50 shadow-lg">
@@ -28,7 +51,9 @@ const Navbar = () => {
               title="Notifications"
             >
               <FaBell className="w-5 h-5 group-hover:scale-110 transition-transform" />
-              <span className="absolute top-2 right-2 w-2 h-2 bg-secondary rounded-full"></span>
+              {unreadCount > 0 && (
+                <span className="absolute top-2 right-2 w-2 h-2 bg-secondary rounded-full"></span>
+                )}
             </Link>
 
             <Link

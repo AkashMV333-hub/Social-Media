@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { formatDistanceToNow } from 'date-fns';
 import { useAuth } from '../../context/AuthContext';
@@ -7,13 +7,16 @@ import { FaHeart, FaRegHeart, FaComment, FaTrash } from 'react-icons/fa';
 import CommentList from './CommentList';
 import { getImageUrl } from '../../utils/imageUtils';
 
-const TweetCard = ({ tweet, onDelete, index = 0 }) => {
+const TweetCard = ({ tweet, onDelete, index = 0, initialShowComments = false, scrollToCommentId = null }) => {
   const { user: currentUser } = useAuth();
   const [liked, setLiked] = useState(tweet.isLiked);
   const [likesCount, setLikesCount] = useState(tweet.likesCount);
-  const [showComments, setShowComments] = useState(false);
+  const [showComments, setShowComments] = useState(initialShowComments);
   const [commentsCount, setCommentsCount] = useState(tweet.commentsCount);
-
+  useEffect(() => {
+    setLiked(tweet.isLiked || false);
+    setLikesCount(tweet.likesCount || 0);
+  }, [tweet.isLiked, tweet.likesCount]);
   // Background colors for text-only posts
   const textPostColors = ['#BF937C', '#4F3A35', '#2F6755', '#98A69A','#AC7E6E', '#C9ADA7', '#82BAC4', '#725444', '#82BAC4'];
   const backgroundColor = !tweet.image ? textPostColors[index % textPostColors.length] : 'transparent';
@@ -31,7 +34,7 @@ const TweetCard = ({ tweet, onDelete, index = 0 }) => {
     return 'text-lg';
   };
 
-  const handleLike = async () => {
+const handleLike = async () => {
     try {
       if (liked) {
         await api.delete(`/api/tweets/${tweet._id}/like`);
@@ -104,18 +107,9 @@ const TweetCard = ({ tweet, onDelete, index = 0 }) => {
           </div>
 
           {!tweet.image ? (
-            <div
-              className="mt-4 rounded-2xl w-full flex items-center justify-center p-8 shadow-inner transition-all mb-6"
-              style={{
-                backgroundColor,
-                minHeight: '24rem',
-                maxHeight: '24rem'
-              }}
-            >
-              <p className={`text-white font-bold ${getDynamicFontSize(tweet.text)} text-center`}>
-                {tweet.text}
-              </p>
-            </div>
+            <p className="mt-4 text-gray-900 leading-relaxed font-medium whitespace-pre-wrap">
+    {tweet.text}
+  </p>
           ) : (
             <>
               <p className="mt-4 text-gray-900 mb-4 leading-relaxed font-medium">{tweet.text}</p>
@@ -159,7 +153,12 @@ const TweetCard = ({ tweet, onDelete, index = 0 }) => {
           {showComments && (
             <CommentList
               tweetId={tweet._id}
+              tweetAuthorId={tweet.author._id}
               onCommentAdded={() => setCommentsCount(prev => prev + 1)}
+              onCommentDelete={(commentId) => { // This will trigger a refetch or update the comment count
+                setCommentsCount(prev => Math.max(0, prev - 1));
+              }}
+              scrollToCommentId={scrollToCommentId}
             />
           )}
         </div>
