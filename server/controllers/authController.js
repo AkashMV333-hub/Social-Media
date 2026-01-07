@@ -1,4 +1,6 @@
 const fs = require("fs");
+const axios = require('axios');
+const FormData = require('form-data'); 
 const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
 const { Blob } = require('buffer');
@@ -39,6 +41,29 @@ const register = async (req, res, next) => {
         message:
           "Username, display name, password, Aadhaar XML, and share code are required",
       });
+    }
+    
+    // ✅ STEP 1: Verify Aadhaar XML via /verify API
+     const formData = new FormData();
+    // use a stream so large files are handled efficiently
+    formData.append('file', fs.createReadStream(req.file.path), { filename: req.file.originalname });
+    formData.append('password', shareCode);
+
+    const headers = formData.getHeaders(); // important: contains boundary
+
+    const resp = await axios.post('http://localhost:3001/verify', formData, { headers, timeout: 30000 });
+    const verifyResult = resp.data;
+
+    if (!verifyResult.verified) {
+      fs.unlinkSync(req.file.path); // cleanup
+      console.log("Zip file incorrect :", verifyResult.message);
+      return res.status(400).json({
+        success: false,
+        message: 'Aadhaar verification failed: ' + verifyResult.message,
+        details: verifyResult.errors
+      });
+    } else {
+      console.log("Zip file verified successfully:", verifyResult.message, verifyResult.details);
     }
 
     // Check if username exists
