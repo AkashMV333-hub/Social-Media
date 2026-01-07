@@ -41,8 +41,8 @@ api.interceptors.response.use(
         window.location.href = '/login';
       }
 
-      // Return error message from server
-      return Promise.reject(error.response.data);
+      // Return the full error response (not just data) - THIS IS THE KEY FIX
+      return Promise.reject(error);
     } else if (error.request) {
       // Network error
       return Promise.reject({

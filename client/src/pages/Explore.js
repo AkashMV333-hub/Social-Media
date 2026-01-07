@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../api/axios';
 import Navbar from '../components/layout/Navbar';
@@ -11,19 +11,38 @@ const Explore = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  const handleSearch = async (e) => {
-    e.preventDefault();
-    if (!query.trim()) return;
+  // Debounced search function
+  const debouncedSearch = useCallback(
+    async (searchQuery) => {
+      if (!searchQuery.trim()) {
+        setUsers([]);
+        return;
+      }
 
-    try {
-      setLoading(true);
-      const response = await api.get(`/api/search/users?q=${query}`);
-      setUsers(response.data.data.users);
-    } catch (error) {
-      console.error('Error searching users:', error);
-    } finally {
-      setLoading(false);
-    }
+      try {
+        setLoading(true);
+        const response = await api.get(`/api/search/users?q=${searchQuery}`);
+        setUsers(response.data.data.users);
+      } catch (error) {
+        console.error('Error searching users:', error);
+      } finally {
+        setLoading(false);
+      }
+    },
+    []
+  );
+
+  // Handle input change with debouncing
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      debouncedSearch(query);
+    }, 300); // 300ms delay
+
+    return () => clearTimeout(timer);
+  }, [query, debouncedSearch]);
+
+  const handleInputChange = (e) => {
+    setQuery(e.target.value);
   };
 
   return (
@@ -37,18 +56,18 @@ const Explore = () => {
             <div className="bg-brand2 rounded-lg shadow-lg p-4">
               <h2 className="text-2xl font-bold mb-4 text-gray-900">Explore</h2>
 
-              <form onSubmit={handleSearch} className="mb-6">
+              <div className="mb-6">
                 <div className="relative">
                   <input
                     type="text"
                     className="w-full px-4 py-3 pl-10 bg-brand2 border border-brand1 rounded-lg text-gray-700 placeholder-gray-400 focus:outline-none focus:border-brand1 transition-colors"
                     placeholder="Search users..."
                     value={query}
-                    onChange={(e) => setQuery(e.target.value)}
+                    onChange={handleInputChange}
                   />
                   <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                 </div>
-              </form>
+              </div>
 
               {loading ? (
                 <div className="text-center py-8">

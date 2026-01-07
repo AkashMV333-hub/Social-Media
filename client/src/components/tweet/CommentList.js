@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { formatDistanceToNow } from 'date-fns';
 import { useAuth } from '../../context/AuthContext';
+import MentionTag from '../mention/MentionTag';
+import MentionInput from '../mention/MentionInput';
 import api from '../../api/axios';
 import { getImageUrl } from '../../utils/imageUtils';
 
@@ -13,8 +15,7 @@ const CommentItem = ({ comment, allComments, tweetId, tweetAuthorId, user, expan
   const isExpanded = expandedReplies[comment._id];
   
   const handleDeleteComment = async () => {
-  if (!window.confirm('Are you sure you want to delete this comment?')) return;
-  
+    if (!window.confirm('Are you sure you want to delete this comment?')) return;  
   try {
     await api.delete(`/api/comments/${comment._id}`);
     // This will need to be passed down from CommentList
@@ -73,7 +74,19 @@ const CommentItem = ({ comment, allComments, tweetId, tweetAuthorId, user, expan
   @{comment.author.username} · {formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true })}
 </span>
           </div>
-          <p className="text-white hover:text-gray-100 transition-colors duration-200 text-sm mt-1">{comment.text}</p>
+          <p className="text-white hover:text-gray-100 transition-colors duration-200 text-sm mt-1">
+    {(() => {
+      const mentionRegex = /@(\w+)/g;
+      const parts = comment.text.split(mentionRegex);
+      
+      return parts.map((part, index) => {
+        if (index % 2 === 1) {
+          return <MentionTag key={index} username={part} />;
+        }
+        return <span key={index}>{part}</span>;
+      });
+    })()}
+  </p>
           
           {/* Action buttons side by side */}
           <div className="flex gap-3 mt-2">
@@ -107,23 +120,29 @@ const CommentItem = ({ comment, allComments, tweetId, tweetAuthorId, user, expan
               <form onSubmit={handleSubmitReply} className="flex gap-2">
                 <img src={getImageUrl(user?.profilePicture)} alt={user?.name} className="w-6 h-6 rounded-full object-cover border border-white/30"
                   onError={(e) => { e.target.onerror = null; e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name)}&background=1DB954&color=fff&size=150`; }} />
-                <div className="mt-3 border-t border-white/20 pt-3 bg-brand1 rounded-lg p-3">
-                  <input 
-  type="text" 
-  className="w-full bg-white/20 border border-white/30 rounded-lg px-3 py-2 text-sm text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent" 
-  placeholder="Tweet your reply" 
-  value={replyText} 
-  onChange={(e) => setReplyText(e.target.value)} 
-  maxLength={280} 
-/>
-<button 
-  type="submit" 
-  disabled={!replyText.trim()} 
-  className="mt-2 bg-white hover:bg-white/90 text-brand1 text-sm font-medium px-4 py-1.5 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
->
-  Reply
-</button>
-                  
+                <div className="flex-1">
+                  <div className="mt-3 border-t border-white/20 pt-3 bg-brand1 rounded-lg p-3">
+                    <div className="relative">
+                      <MentionInput
+                        value={replyText}
+                        onChange={setReplyText}
+                        placeholder="Comment your reply"
+                        maxLength={280}
+                        className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none bg-white/20 border border-white/30 rounded-lg px-3 py-2 text-sm text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent"
+                        rows={3}
+                      />
+                      <div className="text-right text-sm text-gray-500 mt-1">
+                        {replyText.length}/280
+                      </div>
+                    </div>
+                    <button 
+                      type="submit" 
+                      disabled={!replyText.trim()} 
+                      className="mt-2 bg-white hover:bg-white/90 text-brand1 text-sm font-medium px-4 py-1.5 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      Reply
+                    </button>
+                  </div>
                 </div>
               </form>
             </div>
@@ -217,13 +236,13 @@ const CommentList = ({ tweetId, tweetAuthorId, onCommentAdded, scrollToCommentId
   };
   
   const handleCommentAdded = (newComment = null) => {
-  if (newComment) {
-    // If it's a reply, add it to comments state
-    setComments(prev => [newComment, ...prev]);
-  } else {
-    // If it's a top-level comment, increment count
-    onCommentAdded();
-  }
+    if (newComment) {
+      // If it's a reply, add it to comments state
+      setComments(prev => [newComment, ...prev]);
+    } else {
+      // If it's a top-level comment, increment count
+      onCommentAdded();
+    }
 };
 const handleCommentDelete = (commentId) => {
   setComments(prev => prev.filter(c => c._id !== commentId));
@@ -232,55 +251,59 @@ const handleCommentDelete = (commentId) => {
   const topLevelComments = comments.filter(c => !c.parentComment);
 
   return (
-  <div className="mt-3 border-t border-gray-800 pt-3">
-  <form onSubmit={handleSubmit} className="mb-4 flex gap-2">
-    <img 
-      src={getImageUrl(user?.profilePicture)} 
-      alt={user?.name} 
-      className="w-8 h-8 rounded-full object-cover border border-brand1/30"
-      onError={(e) => { 
-        e.target.onerror = null; 
-        e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name)}&background=6366f1&color=fff&size=150`; 
-      }} 
-    />
-    <div className="mt-3 border-t border-white/20 pt-3 bg-brand1 rounded-lg p-3">
-      <input 
-        type="text" 
-        className="w-full bg-white/20 border border-white/30 rounded-lg px-3 py-2 text-sm text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent" 
-        placeholder="Tweet your reply" 
-        value={newComment} 
-        onChange={(e) => setNewComment(e.target.value)} 
-        maxLength={280} 
-      />
-      <button 
-        type="submit" 
-        disabled={loading || !newComment.trim()} 
-        className="mt-2 bg-brand1 hover:bg-brand1/90 text-white text-sm font-medium px-4 py-1.5 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        {loading ? 'Replying...' : 'Reply'}
-      </button>
-    </div>
-  </form>
+    <div className="mt-3 border-t border-gray-800 pt-3">
+      <form onSubmit={handleSubmit} className="mb-4 flex gap-2">
+        <img 
+          src={getImageUrl(user?.profilePicture)} 
+          alt={user?.name} 
+          className="w-8 h-8 rounded-full object-cover border border-brand1/30"
+          onError={(e) => { 
+            e.target.onerror = null; 
+            e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name)}&background=6366f1&color=fff&size=150`; 
+          }} 
+        />
+        <div className="flex-1">
+          <div className="mt-3 border-t border-white/20 pt-3 bg-brand1 rounded-lg p-3">
+            <div className="relative">
+              <MentionInput
+                value={newComment}
+                onChange={setNewComment}
+                placeholder="Comment your reply"
+                maxLength={280}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none bg-white/20 border border-white/30 rounded-lg px-3 py-2 text-sm text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent"
+                rows={3}
+              />
+            </div>
+            <button 
+              type="submit" 
+              disabled={loading || !newComment.trim()} 
+              className="mt-2 bg-brand1 hover:bg-brand1/90 text-white text-sm font-medium px-4 py-1.5 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {loading ? 'Replying...' : 'Reply'}
+            </button>
+          </div>
+        </div>
+      </form>
 
       <div className="space-y-3">
         {topLevelComments.map(comment => (
           <div key={comment._id} id={`comment-${comment._id}`}>
             <CommentItem
-  comment={comment}
-  allComments={comments}
-  tweetId={tweetId}
-  tweetAuthorId={tweetAuthorIdState}
-  user={user}
-  expandedReplies={expandedReplies}
-  toggleReplies={toggleReplies}
-  replyingToId={replyingToId}
-  setReplyingToId={setReplyingToId}
-  replyText={replyText}
-  setReplyText={setReplyText}
-  onCommentAdded={handleCommentAdded}
-  onCommentDelete={handleCommentDelete}
-  level={0}
-/>
+              comment={comment}
+              allComments={comments}
+              tweetId={tweetId}
+              tweetAuthorId={tweetAuthorIdState}
+              user={user}
+              expandedReplies={expandedReplies}
+              toggleReplies={toggleReplies}
+              replyingToId={replyingToId}
+              setReplyingToId={setReplyingToId}
+              replyText={replyText}
+              setReplyText={setReplyText}
+              onCommentAdded={handleCommentAdded}
+              onCommentDelete={handleCommentDelete}
+              level={0}
+            />
           </div>
         ))}
       </div>

@@ -11,6 +11,7 @@ const Login = () => {
     careOf: "",
   });
   const [error, setError] = useState("");
+  const [fieldErrors, setFieldErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const { login, isAuthenticated } = useAuth();
   const navigate = useNavigate();
@@ -20,25 +21,46 @@ const Login = () => {
   }
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError("");
-    setLoading(true);
-
-    console.log(formData)
-    const result = await login(formData);
-
-    if (result.success) {
-      navigate("/");
-    } else {
-      setError(result.message);
-      setLoading(false);
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+    // Clear field error when user starts typing
+    if (fieldErrors[name]) {
+      setFieldErrors({ ...fieldErrors, [name]: "" });
     }
   };
 
+ // In Login.js handleSubmit function:
+const handleSubmit = async (e) => {
+  e.preventDefault(); // This should prevent page refresh
+  setError("");
+  setFieldErrors({});
+  setLoading(true);
+
+  try {
+    console.log("Submitting login data:", formData);
+    const result = await login(formData);
+    console.log("Login result from AuthContext:", result);
+
+    if (result.success) {
+      console.log("Login successful, navigating...");
+      navigate("/");
+    } else {
+      console.log("Login failed, checking for field errors...");
+      if (result.fieldErrors) {
+        console.log("Field errors found:", result.fieldErrors);
+        setFieldErrors(result.fieldErrors);
+      } else {
+        console.log("General error:", result.message);
+        setError(result.message);
+      }
+      setLoading(false);
+    }
+  } catch (error) {
+    console.log("Unexpected error in handleSubmit:", error);
+    setError("An unexpected error occurred. Please try again.");
+    setLoading(false);
+  }
+};
   return (
     <div className="min-h-screen flex items-center justify-center bg-brand1 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
@@ -59,55 +81,110 @@ const Login = () => {
           )}
 
           <div className="space-y-4">
-            <input
-              name="username"
-              type="text"
-              required
-              placeholder="Username"
-              className="w-full px-4 py-3 bg-brand2 border border-brand2 rounded-md text-black placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-brand1 focus:border-transparent transition-colors"
-              value={formData.username}
-              onChange={handleChange}
-            />
+            <div>
+              <input
+                name="username"
+                type="text"
+                required
+                placeholder="Username"
+                className={`w-full px-4 py-3 bg-brand2 border rounded-md text-black placeholder-gray-600 focus:outline-none focus:ring-2 focus:border-transparent transition-colors ${
+                  fieldErrors.username 
+                    ? 'border-red-500 focus:ring-red-500' 
+                    : 'border-brand2 focus:ring-brand1'
+                }`}
+                value={formData.username}
+                onChange={handleChange}
+              />
+              {fieldErrors.username && (
+                <p className="mt-1 text-sm text-red-500">
+                  {fieldErrors.username}
+                </p>
+              )}
+            </div>
 
-            <input
-              name="password"
-              type="password"
-              required
-              placeholder="Password"
-              className="w-full px-4 py-3 bg-brand2 border border-brand2 rounded-md text-black placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-brand1 focus:border-transparent transition-colors"
-              value={formData.password}
-              onChange={handleChange}
-            />
+            <div>
+              <input
+                name="password"
+                type="password"
+                required
+                placeholder="Password"
+                className={`w-full px-4 py-3 bg-brand2 border rounded-md text-black placeholder-gray-600 focus:outline-none focus:ring-2 focus:border-transparent transition-colors ${
+                  fieldErrors.password 
+                    ? 'border-red-500 focus:ring-red-500' 
+                    : 'border-brand2 focus:ring-brand1'
+                }`}
+                value={formData.password}
+                onChange={handleChange}
+              />
+              {fieldErrors.password && (
+                <p className="mt-1 text-sm text-red-500">
+                  {fieldErrors.password}
+                </p>
+              )}
+            </div>
 
-            <input
-              name="name"
-              type="text"
-              required
-              placeholder="Full Name (as on Aadhaar)"
-              className="w-full px-4 py-3 bg-brand2 border border-brand2 rounded-md text-black placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-brand1 focus:border-transparent transition-colors"
-              value={formData.name}
-              onChange={handleChange}
-            />
+            <div>
+              <input
+                name="name"
+                type="text"
+                required
+                placeholder="Full Name (as on Aadhaar)"
+                className={`w-full px-4 py-3 bg-brand2 border rounded-md text-black placeholder-gray-600 focus:outline-none focus:ring-2 focus:border-transparent transition-colors ${
+                  fieldErrors.name 
+                    ? 'border-red-500 focus:ring-red-500' 
+                    : 'border-brand2 focus:ring-brand1'
+                }`}
+                value={formData.name}
+                onChange={handleChange}
+              />
+              {fieldErrors.name && (
+                <p className="mt-1 text-sm text-red-500">
+                  {fieldErrors.name}
+                </p>
+              )}
+            </div>
 
-            <input
-              name="dob"
-              type="text"
-              required
-              placeholder="Date of Birth"
-              className="w-full px-4 py-3 bg-brand2 border border-brand2 rounded-md text-black placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-brand1 focus:border-transparent transition-colors"
-              value={formData.dob}
-              onChange={handleChange}
-            />
+            <div>
+              <input
+                name="dob"
+                type="text"
+                required
+                placeholder="Date of Birth"
+                className={`w-full px-4 py-3 bg-brand2 border rounded-md text-black placeholder-gray-600 focus:outline-none focus:ring-2 focus:border-transparent transition-colors ${
+                  fieldErrors.dob 
+                    ? 'border-red-500 focus:ring-red-500' 
+                    : 'border-brand2 focus:ring-brand1'
+                }`}
+                value={formData.dob}
+                onChange={handleChange}
+              />
+              {fieldErrors.dob && (
+                <p className="mt-1 text-sm text-red-500">
+                  {fieldErrors.dob}
+                </p>
+              )}
+            </div>
 
-            <input
-              name="careOf"
-              type="text"
-              required
-              placeholder="Care Of / Father's Name"
-              className="w-full px-4 py-3 bg-brand2 border border-brand2 rounded-md text-black placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-brand1 focus:border-transparent transition-colors"
-              value={formData.careOf}
-              onChange={handleChange}
-            />
+            <div>
+              <input
+                name="careOf"
+                type="text"
+                required
+                placeholder="Care Of / Father's Name"
+                className={`w-full px-4 py-3 bg-brand2 border rounded-md text-black placeholder-gray-600 focus:outline-none focus:ring-2 focus:border-transparent transition-colors ${
+                  fieldErrors.careOf 
+                    ? 'border-red-500 focus:ring-red-500' 
+                    : 'border-brand2 focus:ring-brand1'
+                }`}
+                value={formData.careOf}
+                onChange={handleChange}
+              />
+              {fieldErrors.careOf && (
+                <p className="mt-1 text-sm text-red-500">
+                  {fieldErrors.careOf}
+                </p>
+              )}
+            </div>
           </div>
 
           <button
@@ -118,13 +195,24 @@ const Login = () => {
             {loading ? "Logging in..." : "Log in"}
           </button>
 
-          <div className="text-center">
-            <Link
-              to="/register"
-              className="font-medium text-brand2 hover:text-white transition-colors"
-            >
-              Don’t have an account? Sign up
-            </Link>
+          <div className="flex items-center justify-between">
+            <div className="text-center">
+              <Link
+                to="/register"
+                className="font-medium text-brand2 hover:text-white transition-colors"
+              >
+                Don't have an account? Sign up
+              </Link>
+            </div>
+            
+            <div className="text-center">
+              <Link
+                to="/forgot-password"
+                className="font-medium text-brand2 hover:text-white transition-colors"
+              >
+                Forgot password?
+              </Link>
+            </div>
           </div>
         </form>
       </div>
@@ -133,4 +221,3 @@ const Login = () => {
 };
 
 export default Login;
-

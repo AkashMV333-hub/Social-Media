@@ -108,7 +108,8 @@ const Home = () => {
                   <TweetCard
                     key={tweet.id}
                     tweet={tweet}
-                    onUpdate={fetchTweets}
+                    onDelete={handleTweetDeleted}
+                    
                     index={index}
                   />
                 ))}

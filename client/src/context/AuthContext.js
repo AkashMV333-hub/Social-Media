@@ -52,9 +52,14 @@ export const AuthProvider = ({ children }) => {
   };
 
   // Login function (Aadhaar-compatible)
+  // Update the login function in AuthContext.js with debugging:
+
 const login = async (data) => {
   try {
-    const response = await api.post('/api/auth/login', data );
+    console.log("AuthContext login called with:", data);
+    const response = await api.post('/api/auth/login', data);
+    console.log("AuthContext login response:", response);
+    console.log("Response data:", response.data);
 
     if (response.data.success) {
       const { user, token } = response.data.data;
@@ -69,65 +74,86 @@ const login = async (data) => {
 
       return { success: true };
     } else {
-      console.log(response.data.message)
-      return {
-        success: false,
-        message: response.data.message || 'Login failed',
-      };
+      // Check if there are field-specific errors
+      if (response.data.fieldErrors) {
+        console.log("Returning field errors from success response:", response.data.fieldErrors);
+        return {
+          success: false,
+          fieldErrors: response.data.fieldErrors,
+        };
+      } else {
+        console.log("Returning general error from success response:", response.data.message);
+        return {
+          success: false,
+          message: response.data.message || 'Login failed',
+        };
+      }
     }
   } catch (error) {
-    // Handle backend error messages (e.g., Aadhaar mismatch)
-    const backendMsg =
-      error.response?.data?.message || error.message || 'Login failed';
-    console.log(backendMsg);  
-    return {
-      success: false,
-      message: backendMsg,
-    };
+    console.log("AuthContext login error:", error);
+    console.log("Error response:", error.response);
+    console.log("Error response data:", error.response?.data);
+    
+    // Handle backend error messages with field-specific errors
+    if (error.response?.data?.fieldErrors) {
+      console.log("Returning field errors from error:", error.response.data.fieldErrors);
+      return {
+        success: false,
+        fieldErrors: error.response.data.fieldErrors,
+      };
+    } else {
+      const backendMsg =
+        error.response?.data?.message || error.message || 'Login failed';
+      console.log("Returning general error:", backendMsg);
+      return {
+        success: false,
+        message: backendMsg,
+      };
+    }
   }
 };
 
   // ✅ Updated register function for Aadhaar-based registration
-const register = async (formData) => {
-  try {
-    const response = await api.post('/api/auth/register', formData, {
-      headers: {
-        // Let Axios handle multipart form boundaries automatically
-        'Content-Type': 'multipart/form-data',
-      },
-    });
+  const register = async (formData) => {
+    try {
+      const response = await api.post('/api/auth/register', formData, {
+        headers: {
+          // Let Axios handle multipart form boundaries automatically
+          'Content-Type': 'multipart/form-data',
+        },
+      });
 
-    if (response.data.success) {
-      const { user, token } = response.data.data || {};
+      if (response.data.success) {
+        const { user, token } = response.data.data || {};
 
-      if (user && token) {
-        setUser(user);
-        setToken(token);
+        if (user && token) {
+          setUser(user);
+          setToken(token);
 
-        // Store in localStorage
-        localStorage.setItem('user', JSON.stringify(user));
-        localStorage.setItem('token', token);
+          // Store in localStorage
+          localStorage.setItem('user', JSON.stringify(user));
+          localStorage.setItem('token', token);
+        }
+
+        return { success: true };
+      } else {
+        return {
+          success: false,
+          message: response.data.message || 'Registration failed',
+        };
       }
+    } catch (error) {
+      console.error('Registration error:', error);
 
-      return { success: true };
-    } else {
       return {
         success: false,
-        message: response.data.message || 'Registration failed',
+        message:
+          error.response?.data?.message ||
+          error.message ||
+          'Registration failed',
       };
     }
-  } catch (error) {
-    console.error('Registration error:', error);
-
-    return {
-      success: false,
-      message:
-        error.response?.data?.message ||
-        error.message ||
-        'Registration failed',
-    };
-  }
-};
+  };
 
   // Logout function
   const logout = () => {

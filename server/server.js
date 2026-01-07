@@ -72,7 +72,6 @@ app.get('/api/health', (req, res) => {
     timestamp: new Date().toISOString(),
   });
 });
-
 // 404 handler
 app.use((req, res) => {
   res.status(404).json({
@@ -95,6 +94,7 @@ process.on('unhandledRejection', (err) => {
   console.log(`Error: ${err.message}`);
   server.close(() => process.exit(1));
 });
+
 
 module.exports = app;
 

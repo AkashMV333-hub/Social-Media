@@ -29,6 +29,19 @@ const userSchema = new mongoose.Schema(
       minlength: [6, 'Password must be at least 6 characters'],
       select: false, // Don't include password in queries by default
     },
+    email: {
+      type: String,
+      required: false,
+      unique: true,
+      sparse: true,
+      lowercase: true,
+      trim: true,
+      match: [/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/, 'Please enter a valid email'],
+    },
+    
+    // Password reset fields
+    passwordResetToken: String,
+    passwordResetExpires: Date,
 
     // ✅ Aadhaar fields (new additions)
     aadhaarIdentifier: {
@@ -107,15 +120,17 @@ userSchema.pre('save', async function (next) {
 
 // Compare password
 userSchema.methods.comparePassword = async function (candidatePassword) {
-  return await bcrypt.compare(candidatePassword, this.password);
+  return bcrypt.compare(candidatePassword, this.password);
 };
 
-// Public profile (exclude sensitive data)
+// Get public profile (exclude sensitive data)
 userSchema.methods.getPublicProfile = function () {
-  const user = this.toObject();
-  delete user.password;
-  delete user.aadhaarIdentifier;
-  return user;
+  const userObject = this.toObject();
+  delete userObject.password;
+  delete userObject.aadhaarIdentifier;
+  delete userObject.passwordResetToken;
+  delete userObject.passwordResetExpires;
+  return userObject;
 };
 
 module.exports = mongoose.model('User', userSchema);

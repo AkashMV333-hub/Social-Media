@@ -194,6 +194,10 @@ const ProfileHeader = ({ user, onUpdate, onShowAside }) => {
             </div>
 
             <div className="flex gap-6 mt-3">
+              <div className="cursor-pointer hover:underline transition-all duration-200">
+    <span className="font-bold text-spotify-text">{user.tweetsCount || 0}</span>{' '}
+    <span className="text-spotify-text-gray">Posts</span>
+  </div>
               <div
                 onClick={() => onShowAside && onShowAside({ type: 'following', username: user.username })}
                 className="cursor-pointer hover:underline transition-all duration-200"

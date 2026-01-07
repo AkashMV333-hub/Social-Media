@@ -13,6 +13,7 @@ import Notifications from './pages/Notifications';
 import TweetDetail from './pages/TweetDetail';
 import PostDeleted from './pages/PostDeleted';
 import Messages from './pages/Messages';
+import ForgotPassword from './pages/ForgotPassword';
 
 function App() {
   const { loading } = useAuth();
@@ -99,7 +100,7 @@ function App() {
               </ProtectedRoute>
             }
           />
-
+          <Route path="/forgot-password" element={<ForgotPassword />} />
           {/* Redirect unknown routes to home */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

@@ -6,6 +6,10 @@ const mongoose = require('mongoose');
  */
 const tweetSchema = new mongoose.Schema(
   {
+    mentions: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
+    }],
     author: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',

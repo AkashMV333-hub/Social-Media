@@ -3,6 +3,19 @@ const User = require('../models/User');
 const Notification = require('../models/Notification');
 const { uploadImage } = require('../utils/imageUtils');
 
+// Helper function to extract mentions from text
+const extractMentions = async (text) => {
+  const mentions = text.match(/@(\w+)/g) || [];
+  const usernames = mentions.map(mention => mention.substring(1));
+  
+  if (usernames.length === 0) {
+    return [];
+  }
+  
+  const users = await User.find({ username: { $in: usernames } }).select('_id');
+  return users.map(user => user._id);
+};
+
 /**
  * @desc    Create a new tweet
  * @route   POST /api/tweets
@@ -18,16 +31,33 @@ const createTweet = async (req, res, next) => {
       imageUrl = await uploadImage(req.file, 'twitter-clone/tweets');
     }
 
+    // Extract mentioned users
+    const mentionedUsers = await extractMentions(text);
+
     const tweet = await Tweet.create({
       author: req.user._id,
       text,
       image: imageUrl,
+      mentions: mentionedUsers,
     });
 
     // Update user's tweet count
     await User.findByIdAndUpdate(req.user._id, {
       $inc: { tweetsCount: 1 },
     });
+
+    // Create notifications for mentioned users
+    if (mentionedUsers.length > 0) {
+      const notifications = mentionedUsers.map(userId => ({
+        recipient: userId,
+        sender: req.user._id,
+        type: 'mention',
+        tweet: tweet._id,
+        message: `${req.user.name} mentioned you in a post`,
+      }));
+      
+      await Notification.insertMany(notifications);
+    }
 
     // Populate author data
     await tweet.populate('author', 'name username profilePicture');
@@ -54,7 +84,8 @@ const getTweetById = async (req, res, next) => {
     const { id } = req.params;
 
     const tweet = await Tweet.findById(id)
-      .populate('author', 'name username profilePicture');
+      .populate('author', 'name username profilePicture')
+      .populate('mentions', 'name username profilePicture');
 
     if (!tweet) {
       return res.status(404).json({
@@ -103,7 +134,8 @@ const getHomeFeed = async (req, res, next) => {
       .sort({ createdAt: -1 })
       .limit(parseInt(limit))
       .skip(parseInt(skip))
-      .populate('author', 'name username profilePicture');
+      .populate('author', 'name username profilePicture')
+      .populate('mentions', 'name username profilePicture');
 
     // Add isLiked flag for each tweet
     const tweetsWithLikeStatus = tweets.map(tweet => ({
@@ -143,7 +175,8 @@ const getLatestTweets = async (req, res, next) => {
       .sort({ createdAt: -1 })
       .limit(parseInt(limit))
       .skip(parseInt(skip))
-      .populate('author', 'name username profilePicture');
+      .populate('author', 'name username profilePicture')
+      .populate('mentions', 'name username profilePicture');
 
     // Add isLiked flag if user is authenticated
     let tweetsWithLikeStatus = tweets;

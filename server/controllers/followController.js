@@ -125,15 +125,23 @@ const getFollowStatus = async (req, res, next) => {
   try {
     const { id } = req.params;
 
+    // Check if current user follows the profile user
     const followRecord = await Follow.findOne({
       follower: req.user._id,
       following: id,
+    });
+
+    // Check if profile user follows the current user
+    const reverseFollowRecord = await Follow.findOne({
+      follower: id,
+      following: req.user._id,
     });
 
     res.status(200).json({
       success: true,
       data: {
         isFollowing: !!followRecord,
+        isFollowedBy: !!reverseFollowRecord,
       },
     });
   } catch (error) {

@@ -1,10 +1,9 @@
 import { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import MentionInput from '../mention/MentionInput';
 import api from '../../api/axios';
 import { FaImage, FaTimes } from 'react-icons/fa';
 import { getImageUrl } from '../../utils/imageUtils';
-
-
 
 const TweetComposer = ({ onTweetCreated }) => {
   const { user } = useAuth();
@@ -77,13 +76,12 @@ const TweetComposer = ({ onTweetCreated }) => {
 
           <div className="flex-1">
 
-            {/* Text Area */}
-            <textarea
-              className="w-full bg-brand2 border border-brand1 focus:border-brand1 focus:ring-2 focus:ring-brand1 rounded-xl p-4 focus:outline-none resize-none text-base text-gray-700 placeholder-gray-600 transition-all duration-200"
-              placeholder="What's on your mind?"
-              rows="4"
+            {/* Text Area - Replaced with MentionInput */}
+            <MentionInput
               value={text}
-              onChange={(e) => setText(e.target.value)}
+              onChange={setText}
+              placeholder="What's on your mind?"
+              className="bg-brand2 border border-brand1 focus:border-brand1 focus:ring-2 focus:ring-brand1 rounded-xl p-4 focus:outline-none resize-none text-base text-gray-700 placeholder-gray-600 transition-all duration-200"
               maxLength={280}
             />
 
@@ -152,4 +150,3 @@ const TweetComposer = ({ onTweetCreated }) => {
 };
 
 export default TweetComposer;
-

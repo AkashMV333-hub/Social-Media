@@ -7,6 +7,8 @@ const {
   login,
   getMe,
   logout,
+  forgotPassword,
+  resetPassword,
 } = require('../controllers/authController');
 const { protect } = require('../middleware/authMiddleware');
 const {
@@ -21,12 +23,37 @@ const authLimiter = rateLimit({
   message: 'Too many authentication attempts, please try again later',
 });
 
+// Rate limiter for password reset (prevent abuse)
+const passwordResetLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 5, // 5 requests per hour
+  message: 'Too many password reset attempts, please try again later',
+});
 
-const upload = multer({ dest: 'uploads/' }); // store uploaded file temporarily
+// Configure multer for memory storage (more reliable)
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 10 * 1024 * 1024, // 10MB limit
+  },
+  fileFilter: (req, file, cb) => {
+    // Accept both .xml and .zip files
+    if (file.mimetype === 'text/xml' || file.mimetype === 'application/xml' || 
+        file.originalname.endsWith('.xml') || 
+        file.mimetype === 'application/zip' || 
+        file.originalname.endsWith('.zip')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only XML and ZIP files are allowed'), false);
+    }
+  }
+});
 
 // Public routes
 router.post('/register', upload.single('file'), validateRegister, register);
 router.post('/login', login);
+router.post('/forgot-password', passwordResetLimiter, upload.single('xmlFile'), forgotPassword);
+router.post('/reset-password', resetPassword);
 
 // Protected routes
 router.get('/me', protect, getMe);

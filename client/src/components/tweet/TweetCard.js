@@ -1,7 +1,9 @@
+// client/src/components/tweet/TweetCard.js
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { formatDistanceToNow } from 'date-fns';
 import { useAuth } from '../../context/AuthContext';
+import MentionTag from '../mention/MentionTag';
 import api from '../../api/axios';
 import { FaHeart, FaRegHeart, FaComment, FaTrash } from 'react-icons/fa';
 import CommentList from './CommentList';
@@ -13,28 +15,27 @@ const TweetCard = ({ tweet, onDelete, index = 0, initialShowComments = false, sc
   const [likesCount, setLikesCount] = useState(tweet.likesCount);
   const [showComments, setShowComments] = useState(initialShowComments);
   const [commentsCount, setCommentsCount] = useState(tweet.commentsCount);
+
   useEffect(() => {
     setLiked(tweet.isLiked || false);
     setLikesCount(tweet.likesCount || 0);
   }, [tweet.isLiked, tweet.likesCount]);
-  // Background colors for text-only posts
-  const textPostColors = ['#BF937C', '#4F3A35', '#2F6755', '#98A69A','#AC7E6E', '#C9ADA7', '#82BAC4', '#725444', '#82BAC4'];
-  const backgroundColor = !tweet.image ? textPostColors[index % textPostColors.length] : 'transparent';
 
-  // Dynamic font size based on text length
-  const getDynamicFontSize = (text) => {
-    const length = text.length;
-    if (length <= 10) return 'text-9xl';
-    if (length <= 20) return 'text-7xl';
-    if (length <= 50) return 'text-5xl';
-    if (length <= 100) return 'text-4xl';
-    if (length <= 150) return 'text-3xl';
-    if (length <= 200) return 'text-2xl';
-    if (length <= 300) return 'text-xl';
-    return 'text-lg';
+  // Render text with mentions
+  const renderTextWithMentions = (text) => {
+    const mentionRegex = /@(\w+)/g;
+    const parts = text.split(mentionRegex);
+    
+    return parts.map((part, index) => {
+      if (index % 2 === 1) {
+        // This is a username
+        return <MentionTag key={index} username={part} />;
+      }
+      return <span key={index}>{part}</span>;
+    });
   };
 
-const handleLike = async () => {
+  const handleLike = async () => {
     try {
       if (liked) {
         await api.delete(`/api/tweets/${tweet._id}/like`);
@@ -108,11 +109,13 @@ const handleLike = async () => {
 
           {!tweet.image ? (
             <p className="mt-4 text-gray-900 leading-relaxed font-medium whitespace-pre-wrap">
-    {tweet.text}
-  </p>
+              {renderTextWithMentions(tweet.text)}
+            </p>
           ) : (
             <>
-              <p className="mt-4 text-gray-900 mb-4 leading-relaxed font-medium">{tweet.text}</p>
+              <p className="mt-4 text-gray-900 mb-4 leading-relaxed font-medium">
+                {renderTextWithMentions(tweet.text)}
+              </p>
               <div className="mt-4 rounded-2xl overflow-hidden border border-brand2 hover:border-primary/30 transition-all duration-300 shadow-card hover:shadow-card-hover group">
                 <img
                   src={getImageUrl(tweet.image)}
@@ -155,7 +158,7 @@ const handleLike = async () => {
               tweetId={tweet._id}
               tweetAuthorId={tweet.author._id}
               onCommentAdded={() => setCommentsCount(prev => prev + 1)}
-              onCommentDelete={(commentId) => { // This will trigger a refetch or update the comment count
+              onCommentDelete={(commentId) => {
                 setCommentsCount(prev => Math.max(0, prev - 1));
               }}
               scrollToCommentId={scrollToCommentId}
